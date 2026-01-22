@@ -1,0 +1,9 @@
+[tool.poetry]
+package-mode = false # Это означает, что мы не используем poetry для сборки, а только для зависимостей
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.128.0"
+uvicorn = {extras = ["standart"], version = "^0.40.0"}
+pydantic = {extras = ["email"], version = "^2.12.5"}
+pydantic-settings = "^2.12.0"
