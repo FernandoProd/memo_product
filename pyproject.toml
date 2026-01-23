@@ -13,5 +13,6 @@ alembic = {extras = ["asyncio"], version = "^1.18.1"}
 
 [dependency-groups]
 dev = [
-    "pytest (>=9.0.2,<10.0.0)"
+    "pytest (>=9.0.2,<10.0.0)",
+    "black (>=26.1.0,<27.0.0)"
 ]
