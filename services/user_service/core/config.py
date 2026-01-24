@@ -51,7 +51,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-# print(settings.db.url)
-# print(settings.db.echo)
+print(settings.db.url)
+print(settings.db.echo)
 
 #http://127.0.0.1:8000/docs
