@@ -6,3 +6,6 @@ sqlalchemy[asyncio]==2.0.46
 asyncpg==0.31.0
 alembic[asyncio]==1.18.1
 orjson==3.11.5
+
+# python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+# passlib = {extras = ["bcrypt"], version = "^1.7.4"}
