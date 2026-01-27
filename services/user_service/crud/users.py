@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models import User
 from sqlalchemy import select
 
-from core.schemas.user import UserCreate
+from core.schemas.user import UserCreate, UserCreateInternal
 
 
 async def get_all_users(
@@ -16,7 +16,7 @@ async def get_all_users(
 
 async def create_user(
         session: AsyncSession,
-        user_create: UserCreate,
+        user_create: UserCreateInternal,
 ) -> User:
     user = User(**user_create.model_dump())
     session.add(user)
