@@ -11,18 +11,17 @@ class UserData(BaseModel):
     email: str
 
 
-@router.post("/register")
-async def register_user(user_data: UserData):
-    # Каким-то образом вызывается функция создания пользователя из user_service
-    # Как-то пришпандоривается сюда пароль, которого почему-то нет в бд пользователя
-    pass
+# @router.post("/register")
+# async def register_user(user_data: UserData):
+#     # Каким-то образом вызывается функция создания пользователя из user_service
+#     # Как-то пришпандоривается сюда пароль, которого почему-то нет в бд пользователя
+#     pass
 
 
 @router.post("/login")
 async def login():
-    # 1. Проверяем в user_service (HTTP запрос)
-    # 2. Создаем сессию в своей БД
-    # 3. Возвращаем токены
+    # 1. Принимаем логин (имя или email) и пароль
+    # Ответ: {"access_token": "jwt.xxx", "token_type": "bearer"} возможно тут же и refresh отдавать будем
     pass
 
 @router.post("/refresh")
