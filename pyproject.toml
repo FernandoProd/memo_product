@@ -12,6 +12,8 @@ asyncpg = "^0.31.0"
 alembic = {extras = ["asyncio"], version = "^1.18.1"}
 orjson = "^3.11.5"
 pyjwt = {extras = ["crypto"], version = "^2.10.1"}
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 [dependency-groups]
 dev = [
