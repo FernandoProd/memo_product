@@ -35,6 +35,11 @@ class User(Base):
         nullable=False
     )
 
+    hashed_password: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False
+    )
+
     """more information"""
     first_name: Mapped[Optional[str]] = mapped_column(
         String(100),
