@@ -11,7 +11,17 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
+
+# Для внутреннего использования
+class UserCreateInternal(BaseModel):
+    username: str
+    email: str
+    hashed_password: str
+
+    class Config:
+        from_attributes = True
+
 
 class UserRead(UserBase):
     model_config = ConfigDict(
