@@ -7,6 +7,10 @@ class TokenInfo(BaseModel):
     token_type: str = "Bearer"
 
 
+class TokenResponse(BaseModel):
+    pass
+
+
 class TokenData(BaseModel):
     pass
 
@@ -17,5 +21,9 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class RefreshToken(BaseModel):
+class LogoutRequest(BaseModel):
+    pass
+
+
+class RefreshTokenRequest(BaseModel):
     pass
