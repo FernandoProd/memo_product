@@ -1,8 +1,8 @@
 import crud.users
-from core.models import User
-from core.schemas.user import UserCreateInternal
-from crud.users import UserCreate
-from core.security.auth_utils import hash_password
+from services.user_service.core.models import User
+from services.user_service.core.schemas.user import UserCreateInternal
+from services.user_service.crud.users import UserCreate
+from services.user_service.core.security.auth_utils import hash_password
 from sqlalchemy.ext.asyncio import AsyncSession
 
 class UserService:

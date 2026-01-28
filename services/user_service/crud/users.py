@@ -1,10 +1,10 @@
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.models import User
+from services.user_service.core.models import User
 from sqlalchemy import select
 
-from core.schemas.user import UserCreate, UserCreateInternal
+from services.user_service.core.schemas.user import UserCreate, UserCreateInternal
 
 
 async def get_all_users(

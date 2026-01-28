@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.busines_logic.user import UserService
-from core.models import db_helper
-from core.schemas.user import UserCreate, UserRead
+from services.user_service.core.busines_logic.user import UserService
+from services.user_service.core.models import db_helper
+from services.user_service.core.schemas.user import UserCreate, UserRead
 from crud import users as users_crud
 
 router = APIRouter(tags=["Users"])
