@@ -18,3 +18,15 @@ class UserService:
             user_create = user_dict,
         )
         return user
+
+
+    async def get_user_by_id(self, session: AsyncSession, user_id: str) -> User:
+        user = await crud.users.get_user_by_id(
+            session=session,
+            user_id=user_id,
+        )
+
+        if not user:
+            raise "User not found"
+
+        return user

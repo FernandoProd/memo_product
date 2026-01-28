@@ -9,7 +9,7 @@ from crud import users as users_crud
 
 router = APIRouter(tags=["Users"])
 
-@router.post("", response_model=UserRead)
+@router.post("/", response_model=UserRead)
 async def create_user(
         session: Annotated[
             AsyncSession,
@@ -23,3 +23,32 @@ async def create_user(
         user_data=user_data,
     )
     return user
+
+
+from pydantic import BaseModel, EmailStr
+
+class UserSchemaForAuth(BaseModel):
+    sub: str
+    email: EmailStr
+    username: str
+    roles: dict # Можно хранить dict = {"role_auth_user": True, "role_vip_user": False, "role_admin": False} - возможно стоит делать схему этого словаря
+
+
+
+# Эта шляпа нужна для того, чтобы дать auth_service payload для jwt, если пароль сходится (можно еще где-нибудь применять)
+@router.post("verify/")
+async def verify_user_pwd(user_id: str, password: str) -> UserSchemaForAuth:
+    service = UserService()
+    check_user = await service.get_user_by_id(user_id)
+
+    if password != check_user.password:
+        raise "password is not valid"
+
+    user_for_auth = {
+        "sub": check_user.user_id,
+        "email": check_user.email,
+        "username": check_user.username,
+        "roles": check_user.roles,  # Пока что нигде не добавлены((
+    }
+
+    return user_for_auth
