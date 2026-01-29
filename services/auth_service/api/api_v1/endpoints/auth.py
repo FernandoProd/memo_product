@@ -1,10 +1,26 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+import hhtpx # Установить зависимость через poetry
+
 
 from core.schemas.schemas import TokenResponse, LoginRequest, RefreshTokenRequest, LogoutRequest
+from fastapi.security import HTTPBearer
+from fastapi import HTTPException, status
+from services.auth_service.auth.dependencies import get_current_token_payload
+from services.auth_service.auth.helpers import create_access_token, create_refresh_token
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+# Написать http_client для подключения
+# Зависимость для получения HTTP-клиента
+async def get_http_client():
+    async with httpx.AsyncClient() as client:
+        yield client
+
+http_bearer = HTTPBearer(auto_error=False)
+
+
+router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(http_bearer)])
 
 # api/v1/endpoints/auth.py
 from pydantic import BaseModel
@@ -19,7 +35,8 @@ class UserData(BaseModel):
 @router.post("/login", response_model=TokenResponse)
 async def login(
         session: AsyncSession,
-        login_data: LoginRequest
+        login_data: LoginRequest,
+        http_client: httpx.AsyncClient = Depends(get_http_client),
 ):
     # user = get_user_by_email(session, login_data.email)
     # Если пользователя нет, то ошибка
@@ -27,6 +44,41 @@ async def login(
     # Создаем токены access и refresh
     # Сохранить refresh_token в таблицу
     # Вернуть TokenResponse
+
+    try:
+        response = await http_client.post(
+            "http://user_service:8000/api/v1/users/verify-password",
+            json={
+                "email": login_data.email,
+                "password": login_data.password
+            }
+        )
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="User service is unavailable"
+        )
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
+        )
+
+    user_data = response.json()
+
+    # Создаем токены
+    access_token = create_access_token(data={"sub": user_data["email"]})
+    refresh_token = create_refresh_token(data={"sub": user_data["email"]})
+
+    # Сохраняем refresh_token в базу (если нужно)
+    # ... код сохранения refresh_token ...
+
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer"
+    )
     pass
 
 # Обновление access токена
