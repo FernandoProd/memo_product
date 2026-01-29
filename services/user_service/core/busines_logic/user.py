@@ -4,6 +4,7 @@ from services.user_service.core.schemas.user import UserCreateInternal
 from services.user_service.crud.users import UserCreate
 from services.user_service.core.security.auth_utils import hash_password
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException
 
 class UserService:
     async def create_user_with_hash(self, session: AsyncSession, user_data: UserCreate) -> User:
@@ -27,6 +28,6 @@ class UserService:
         )
 
         if not user:
-            raise "User not found"
+            raise HTTPException(status_code=404, detail="User not found")
 
         return user
