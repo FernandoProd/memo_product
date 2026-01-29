@@ -5,7 +5,7 @@ from services.user_service.core.models import User
 from sqlalchemy import select
 
 from services.user_service.core.schemas.user import UserCreate, UserCreateInternal
-
+from typing import Optional #ОПять забыл нахрена тут Optional
 
 async def get_all_users(
         session: AsyncSession
@@ -28,5 +28,18 @@ async def create_user(
 async def get_user_by_id(
         session: AsyncSession,
         user_id: str,
-) -> User:
-    pass
+) -> Optional[User]:
+    try:
+        # Преобразуем строку в UUID объект
+        from sqlalchemy.dialects.postgresql import UUID
+        import uuid
+
+        #user_uuid = uuid.UUID(user_id)
+
+        stmt = select(User).where(User.id == user_id)
+        result = await session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    except (ValueError, Exception) as e:
+        print(f"Ошибка: {e}")
+        return None
