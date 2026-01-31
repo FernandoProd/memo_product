@@ -23,3 +23,8 @@ def get_current_token_payload(
         )
 
     return payload
+
+
+# Зависимость для получения актуальной информации о пользователе
+def get_actual_info_about_user():
+    pass
