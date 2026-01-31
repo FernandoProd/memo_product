@@ -37,4 +37,4 @@ class UserSchema(BaseModel):
     user_id: str
     username: str
     email: EmailStr | None = None
-    is_active: bool = True
+    # is_active: bool = True
