@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 
 class UserServiceClient(BaseClient):
     def __init__(self):
-        super().__init__(base_url="http://user_service:8000") # Ссылку вывести потом в отдельное место
+        super().__init__(base_url="http://localhost:8000/") # Ссылку вывести потом в отдельное место
                                                                 # (чтобы все ссылки хранились централизованно, консолидированно)
 
     async def verify_password(self,
@@ -12,7 +12,7 @@ class UserServiceClient(BaseClient):
                               ):
         try:
             response = await self.post(
-                "/api/v1/users/verify",
+                "api/api/v1/users/verify",   # тут ошибка должно быть  api/v1/users/verify
                 json={
                     "email": email,
                     "password": password
