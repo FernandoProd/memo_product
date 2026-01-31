@@ -12,8 +12,10 @@ class BaseClient:
                 response.raise_for_status()
                 return response
             except httpx.HTTPStatusError as e:
-                # Обработка ошибок
-                pass
+                raise e
+            except Exception as e:
+                # Любые другие исключения
+                raise
 
     async def get(self):
         pass

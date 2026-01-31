@@ -1,5 +1,6 @@
 from services.libs.clients.base import BaseClient
 from fastapi import HTTPException, status
+import httpx
 
 class UserServiceClient(BaseClient):
     def __init__(self):
@@ -7,23 +8,35 @@ class UserServiceClient(BaseClient):
                                                                 # (чтобы все ссылки хранились централизованно, консолидированно)
 
     async def verify_password(self,
-                              email: str,
+                              user_id: str,
                               password: str
                               ):
-        try:
+        # try:
             response = await self.post(
                 "api/api/v1/users/verify",   # тут ошибка должно быть  api/v1/users/verify
-                json={
+                params={
                     "email": email,
                     "password": password
                 }
             )
             return response
-        except HTTPException as e:
-            if e.status_code == 503:
-                raise e
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid credentials"
-                )
+
+        # except httpx.HTTPStatusError as e:  # Добавьте эту ветку
+        #     if e.response.status_code in [401, 403, 404]:
+        #         raise HTTPException(
+        #             status_code=status.HTTP_401_UNAUTHORIZED,
+        #             detail="Invalid credentials"
+        #         )
+        #     else:
+        #         raise HTTPException(
+        #             status_code=e.response.status_code,
+        #             detail=f"User service error: {e.response.status_code}"
+        #         )
+        # except HTTPException as e:  # Оставляем для совместимости
+        #     if e.status_code == 503:
+        #         raise e
+        #     else:
+        #         raise HTTPException(
+        #             status_code=status.HTTP_401_UNAUTHORIZED,
+        #             detail="Invalid credentials",
+        #         )
