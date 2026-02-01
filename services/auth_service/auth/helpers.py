@@ -26,14 +26,13 @@ def create_jwt(
     pass
 
 def create_access_token(
-        user: UserSchema # По факту вызывается Endpoint verify из user_service
+        user: dict# UserSchema # По факту вызывается Endpoint verify из user_service
 ) -> str:
     jwt_payload = {
-        "sub": user.user_id,
-        "email": user.email,
-        "username": user.username,
-        "roles": user.roles,
-
+        "sub": user["sub"],
+        "email": user["email"],
+        "username": user["username"],
+        "roles": user["roles"],
     }
 
     return create_jwt(
@@ -43,9 +42,9 @@ def create_access_token(
     )
 
 
-def create_refresh_token(user: UserSchema) -> str:
+def create_refresh_token(user: dict) -> str:
     jwt_payload = {
-        "sub": user.user_id,
+        "sub": user["sub"],
     }
 
     return create_jwt(
