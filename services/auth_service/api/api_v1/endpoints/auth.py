@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-
-
+from fastapi import Response, Request
 from core.schemas.schemas import TokenResponse, LoginRequest, RefreshTokenRequest, LogoutRequest
 from fastapi.security import HTTPBearer
 from fastapi import HTTPException, status
 from services.auth_service.auth.dependencies import get_current_token_payload, oauth2_scheme
 from services.auth_service.auth.helpers import create_access_token, create_refresh_token
-
+from services.auth_service.utils.jwt_utils import decode_jwt
 
 # Написать http_client для подключения
 # Зависимость для получения HTTP-клиента
@@ -37,6 +36,7 @@ def get_user_client() -> UserServiceClient:
 # Логин - получение токенов по login_data
 @router.post("/login", response_model=TokenResponse)
 async def login(
+        fastapi_response: Response,
         login_data: LoginRequest,
         http_client: UserServiceClient = Depends(get_user_client),
 ):
@@ -46,9 +46,9 @@ async def login(
     # Создаем токены access и refresh
     # Сохранить refresh_token в таблицу
     # Вернуть TokenResponse
-
     try:
-        response = await http_client.verify_password(login_data.email, login_data.password)
+        user_service_response = await http_client.verify_password(login_data.email, login_data.password)
+        user_data = user_service_response.json()
     except InvalidCredentialsError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     except UserServiceUnavailableError:
@@ -56,7 +56,7 @@ async def login(
     except UserServiceError:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    user_data = response.json()
+    #user_data = user_service_response.json()
     # Получаем Sub, username, email
 
     # Создаем токены
@@ -70,26 +70,69 @@ async def login(
     # Сохраняем refresh_token в базу (если нужно)
     # ... код сохранения refresh_token ...
 
+    # Помещаем refresh в кукисы
+
+    fastapi_response.set_cookie(
+        key="refresh_token",  # name of cookie
+        value=refresh_token,  # value
+        httponly=True,
+        secure=True,          # only https
+        samesite="strict",    # security of CSRF Есть еще и другие штуки
+        max_age=60 * 60 * 24 * 30  # срок жизни 30 дней
+        # domain=".myapp.com" в продакшине указать для каких доменов
+    )
+
     return TokenResponse(
         access_token=access_token,
-        refresh_token=refresh_token,
+        # refresh_token=refresh_token,
         token_type="bearer"
     )
 
 
+# Обновление access токена
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh_token(
+        fastapi_request: Request,
+        # fastapi_response: Response,
+        http_client: UserServiceClient = Depends(get_user_client),
+):
+    refresh_token = fastapi_request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(401, "No refresh token")
+
+    # 1. Проверка что тип токена "refresh"
+    # 1. Сравнение токена с БД
+    # 2. Обновление refresh token и загрузка его в куки
+    # Сравнение token_data.type != "refresh" - ошиббка  ВАЖНО СРАВНИТЬ С БД
+    # все ок - создаем токен новый
+
+    payload = decode_jwt(refresh_token) # Стоит проверять срок действия
+    user_id = payload["sub"]
+
+    try:
+        user_service_response = await http_client.get_user_by_id(user_id)
+        user_data = user_service_response.json()
+    except HTTPException as e:
+        print(f" На этом этапе залупа какая-то")
+        raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+    user = {
+        "sub": user_data["id"],
+        "email": user_data["email"],
+        "username": user_data["username"],
+        "roles": {},
+    }
+    new_access_token = create_access_token(user)
+    # new_refresh_token = create_refresh_token() # Опционально , но тогда надо будет записать новый refresh в куки
+
+    return TokenResponse(
+        access_token=new_access_token,
+        token_type="bearer"
+    )
+
 
 # По сюда комментировал
 
-# # Обновление access токена
-# @router.post("/refresh", response_model=TokenResponse)
-# async def refresh_token(
-#         # session: AsyncSession,
-#         refresh_token: RefreshTokenRequest,
-# ):
-#     # Сравнение token_data.type != "refresh" - ошиббка
-#     # все ок - создаем токен новый
-#     pass
-#     # Обновляем access токен
 #
 #
 # # Получение данных авторизованного пользователя
