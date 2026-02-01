@@ -9,7 +9,7 @@ class TokenInfo(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
-    refresh_token: str | None = None
+    # refresh_token: str | None = None
     token_type: str = "Bearer"
 
 
@@ -34,7 +34,8 @@ class RefreshTokenRequest(BaseModel):
 
 class UserSchema(BaseModel):
     # model_config = ConfigDict(strict=True)
-    user_id: str
+    sub: str
     username: str
     email: EmailStr | None = None
+    roles: dict | None = None
     # is_active: bool = True
