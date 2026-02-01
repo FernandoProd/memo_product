@@ -40,12 +40,12 @@ class UserSchemaForAuth(BaseModel):
 # Эта шляпа нужна для того, чтобы дать auth_service payload для jwt, если пароль сходится (можно еще где-нибудь применять)
 @router.post("/verify")
 async def verify_user_pwd(
-        user_id: str,
+        email: str,
         password: str,
         session: AsyncSession = Depends(db_helper.session_getter),
 ) -> UserSchemaForAuth:
     service = UserService()
-    check_user = await service.get_user_by_id(session=session, user_id=user_id)
+    check_user = await service.get_user_by_email(session=session, email=email)
 
 
     if not validate_password(
@@ -58,7 +58,18 @@ async def verify_user_pwd(
         sub=str(check_user.id),
         email=check_user.email,
         username=check_user.username,
-        # roles=check_user.roles,  # Пока что нигде не добавлены((
+        roles={"nuhai": "bebru"}       # check_user.roles,  # Пока что нигде не добавлены((
     )
 
     return user_for_auth
+
+
+# Ручка для получения всей инфы для create access по user_id
+@router.get("/{user_id}", response_model=UserRead)
+async def get_user_by_id(
+        user_id: str,
+        session: AsyncSession = Depends(db_helper.session_getter),
+):
+    service = UserService()
+    user = await service.get_user_by_id(session=session, user_id=user_id)
+    return user
