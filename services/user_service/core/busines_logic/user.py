@@ -31,3 +31,32 @@ class UserService:
             raise HTTPException(status_code=404, detail="User not found")
 
         return user
+
+
+    async def get_user_by_email(
+            self,
+            session: AsyncSession,
+            email: str
+    ) -> User:
+        user = await crud.users.get_user_by_email(
+            session=session,
+            email=email,
+        )
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return user
+
+
+
+
+
+
+
+
+
+
+
+
+
