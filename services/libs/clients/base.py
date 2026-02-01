@@ -17,5 +17,14 @@ class BaseClient:
                 # Любые другие исключения
                 raise
 
-    async def get(self):
-        pass
+    async def get(self, endpoint: str) -> httpx.Response:
+        async with httpx.AsyncClient(base_url=self.base_url) as client:
+            try:
+                response = await client.get(endpoint)
+                response.raise_for_status()
+                return response
+            except httpx.HTTPStatusError as e:
+                raise e
+            except Exception as e:
+                # Любые другие исключения
+                raise
