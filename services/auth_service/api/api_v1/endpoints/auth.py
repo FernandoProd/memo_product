@@ -67,6 +67,7 @@ async def login(
         user=user_data
     )
 
+    # Надо ли хешировать refresh и access перед отправкой в БД и в куки?
     # Сохраняем refresh_token в базу (если нужно)
     # ... код сохранения refresh_token ...
 
