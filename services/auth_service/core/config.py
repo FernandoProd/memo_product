@@ -32,6 +32,11 @@ class DatabaseConfig(BaseModel):
         "pk": "pk_%(table_name)s",
     }
 
+class RedisDBConfig(BaseModel):
+    REDIS_HOST: str = "localhost"  # перенести чтение на .env файл
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_PASSWORD: str = "redis"
 
 class Settings(BaseSettings):
     auth_jwt: AuthJWT = AuthJWT()
