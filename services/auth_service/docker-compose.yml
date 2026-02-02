@@ -22,3 +22,10 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
       - "5051:80"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
