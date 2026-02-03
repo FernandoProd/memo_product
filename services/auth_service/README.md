@@ -1,0 +1,13 @@
+# PostgreSQL
+DATABASE_URL=postgresql://user:password@localhost:5432/auth_db
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+
+# JWT
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+SECRET_KEY=your-secret-key
+ALGORITHM=HS256
