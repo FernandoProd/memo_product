@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 import uuid
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy import String, Boolean, Index
-from services.auth_service.core.models.base import Base
+from core.models import Base
 import datetime
 
 

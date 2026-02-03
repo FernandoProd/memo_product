@@ -1,10 +1,10 @@
 from pathlib import Path
 from pydantic import BaseModel, PostgresDsn
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
+USER_SERVICE_DIR = Path(__file__).parent.parent
 BASE_DIR = Path(__file__).parent.parent
-
 class RunConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8001
@@ -39,13 +39,24 @@ class RedisDBConfig(BaseModel):
     REDIS_PASSWORD: str = "redis"
 
 class Settings(BaseSettings):
-    auth_jwt: AuthJWT = AuthJWT()
-    USER_SERVICE_URL: str = Field(
-        default="http://localhost:8001",  # Значение по умолчанию (Значение в env.template еще включено) надо добавить
-        description="URL auth service"
+    model_config = SettingsConfigDict(
+        env_file = (
+            USER_SERVICE_DIR / ".env.template",
+            USER_SERVICE_DIR / ".env",
+        ),
+        case_sensitive = False,
+        env_nested_delimiter = "__",
+        env_prefix = "APP_CONFIG__",
     )
+    # USER_SERVICE_URL: str = Field(
+    #     default="http://localhost:8001",  # Значение по умолчанию (Значение в env.template еще включено) надо добавить
+    #     description="URL auth service"
+    # )
+    auth_jwt: AuthJWT = AuthJWT()
     run: RunConfig = RunConfig()
     db: DatabaseConfig
 
 
 settings = Settings()
+print(settings.db.url)
+print(settings.db.echo)

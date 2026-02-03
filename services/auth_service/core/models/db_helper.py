@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 from typing import AsyncGenerator
-from services.auth_service.core.config import settings
+from core.config import settings
 
 
 
