@@ -39,3 +39,11 @@ class UserSchema(BaseModel):
     email: EmailStr | None = None
     roles: dict | None = None
     # is_active: bool = True
+
+
+class RefreshTokenInfo(BaseModel):
+    sub: str | bytes
+
+
+class TokenInDBSchema(BaseModel):
+    pass
