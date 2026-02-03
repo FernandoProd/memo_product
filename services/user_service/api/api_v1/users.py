@@ -58,7 +58,7 @@ async def verify_user_pwd(
         sub=str(check_user.id),
         email=check_user.email,
         username=check_user.username,
-        roles={"nuhai": "bebru"}       # check_user.roles,  # Пока что нигде не добавлены((
+        roles=[]       # check_user.roles,  # Пока что нигде не добавлены((
     )
 
     return user_for_auth

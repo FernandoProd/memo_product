@@ -121,7 +121,7 @@ async def refresh_token(
         "sub": user_data["id"],
         "email": user_data["email"],
         "username": user_data["username"],
-        "roles": {},
+        "roles": [],
     }
     new_access_token = create_access_token(user)
     # new_refresh_token = create_refresh_token() # Опционально , но тогда надо будет записать новый refresh в куки
