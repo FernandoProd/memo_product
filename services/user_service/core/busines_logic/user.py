@@ -1,4 +1,4 @@
-import crud.users
+from services.user_service.crud import users
 from services.user_service.core.models import User
 from services.user_service.core.schemas.user import UserCreateInternal
 from services.user_service.crud.users import UserCreate
@@ -14,7 +14,7 @@ class UserService:
             email = user_data.email,
             hashed_password = hashed_pwd,
         )
-        user = await crud.users.create_user(
+        user = await users.create_user(
             session=session,
             user_create = user_dict,
         )
@@ -22,7 +22,7 @@ class UserService:
 
 
     async def get_user_by_id(self, session: AsyncSession, user_id: str) -> User:
-        user = await crud.users.get_user_by_id(
+        user = await users.get_user_by_id(
             session=session,
             user_id=user_id,
         )
@@ -38,7 +38,7 @@ class UserService:
             session: AsyncSession,
             email: str
     ) -> User:
-        user = await crud.users.get_user_by_email(
+        user = await users.get_user_by_email(
             session=session,
             email=email,
         )
