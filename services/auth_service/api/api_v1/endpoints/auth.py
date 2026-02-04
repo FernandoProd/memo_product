@@ -8,6 +8,9 @@ from fastapi import HTTPException, status
 from services.auth_service.auth.dependencies import get_current_token_payload, oauth2_scheme
 from services.auth_service.auth.helpers import create_access_token, create_refresh_token
 from services.auth_service.utils.jwt_utils import decode_jwt
+from services.auth_service.core.busines_logic.auth_server import AuthService
+from typing import Annotated
+from services.auth_service.core.models.db_helper import db_helper
 
 # Написать http_client для подключения
 # Зависимость для получения HTTP-клиента
@@ -38,6 +41,10 @@ def get_user_client() -> UserServiceClient:
 async def login(
         fastapi_response: Response,
         login_data: LoginRequest,
+        session: Annotated[
+            AsyncSession,
+            Depends(db_helper.session_getter)
+        ],
         http_client: UserServiceClient = Depends(get_user_client),
 ):
     # user = get_user_by_email(session, login_data.email)
@@ -67,6 +74,12 @@ async def login(
         user=user_data
     )
 
+    # add refresh token into db
+    service = AuthService()
+    await service.add_token_info_into_db(
+        session=session,
+        refresh_token=refresh_token,
+    )
     # Надо ли хешировать refresh и access перед отправкой в БД и в куки?
     # Сохраняем refresh_token в базу (если нужно)
     # ... код сохранения refresh_token ...
