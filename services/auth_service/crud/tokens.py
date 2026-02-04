@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.auth_service.core.models.tokens import RefreshToken
+from services.auth_service.core.models import RefreshToken
 from services.auth_service.core.schemas.schemas import RefreshTokenInfo
 from services.auth_service.utils.jwt_utils import decode_jwt
 from services.auth_service.core.security.utils import hash_token
@@ -26,25 +26,34 @@ from datetime import datetime, timezone
 
 
 
-async def add_token_info_into_db(
+# async def add_token_info_into_db(
+#         session: AsyncSession,
+#         refresh_token: str,
+# ) -> RefreshToken:
+#     payload = decode_jwt(token=refresh_token)
+#     user_id = payload.get("sub")
+#     # iat_timestamp = payload.get("iat")
+#     exp_timestamp = payload.get("exp")
+#     # issued_at = datetime.utcfromtimestamp(iat_timestamp).strftime('%Y-%m-%d %H:%M:%S UTC') if iat_timestamp else None
+#     expires_at = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+#
+#
+#
+#     hashed_token = hash_token(refresh_token)
+#     token_model = RefreshToken(
+#         user_id=user_id,
+#         token_hash=str(hashed_token),
+#         expires_at=expires_at,
+#     )
+#     session.add(token_model)
+#     await session.commit()
+#     return token_model
+
+
+async def add_token(
         session: AsyncSession,
-        refresh_token: str,
-) -> RefreshToken:
-    payload = decode_jwt(token=refresh_token)
-    user_id = payload.get("sub")
-    # iat_timestamp = payload.get("iat")
-    exp_timestamp = payload.get("exp")
-    # issued_at = datetime.utcfromtimestamp(iat_timestamp).strftime('%Y-%m-%d %H:%M:%S UTC') if iat_timestamp else None
-    expires_at = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
-
-
-
-    hashed_token = hash_token(refresh_token)
-    token_model = RefreshToken(
-        user_id=user_id,
-        token_hash=str(hashed_token),
-        expires_at=expires_at,
-    )
-    session.add(token_model)
+        token_data: RefreshToken
+):
+    session.add(token_data)
     await session.commit()
-    return token_model
+    return token_data
