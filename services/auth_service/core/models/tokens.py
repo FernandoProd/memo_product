@@ -55,6 +55,7 @@ class RefreshToken(Base):
     # Составные индексы для частых запросов:
     __table_args__ = (
         Index('ix_user_revoked_expires', 'user_id', 'revoked', 'expires_at'), # индекс для быстрого поиска активных токенов по user_id и revoked.
+        {'extend_existing': True}
     )
 
 
