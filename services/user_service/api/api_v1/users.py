@@ -33,7 +33,7 @@ class UserSchemaForAuth(BaseModel):
     sub: str
     email: EmailStr
     username: str
-    roles: dict = {} # Можно хранить dict = {"role_auth_user": True, "role_vip_user": False, "role_admin": False} - возможно стоит делать схему этого словаря
+    roles: list= [] # Можно хранить dict = {"role_auth_user": True, "role_vip_user": False, "role_admin": False} - возможно стоит делать схему этого словаря
 
 
 
