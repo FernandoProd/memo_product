@@ -17,12 +17,12 @@ class AuthService:
         # iat_timestamp = payload.get("iat")
         exp_timestamp = payload.get("exp")
         # issued_at = datetime.utcfromtimestamp(iat_timestamp).strftime('%Y-%m-%d %H:%M:%S UTC') if iat_timestamp else None
-        expires_at = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+        expires_at = datetime.utcfromtimestamp(exp_timestamp)
 
         hashed_token = hash_token(refresh_token)
         token_data = RefreshToken(
             user_id=user_id,
-            token_hash=str(hashed_token),
+            token_hash=hashed_token,
             expires_at=expires_at,
         )
 
