@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from services.user_service.core.dependencies.user_dependencies import get_current_user
 from services.user_service.core.busines_logic.user import UserService
 from services.user_service.core.models import db_helper
 from services.user_service.core.schemas.user import UserCreate, UserRead
@@ -65,6 +66,7 @@ async def verify_user_pwd(
 
 
 # Ручка для получения всей инфы для create access по user_id
+# Учесть, что тут не защищена ручка, то есть каждый сможет получить без авторизации информацию
 @router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(
         user_id: str,
@@ -73,3 +75,15 @@ async def get_user_by_id(
     service = UserService()
     user = await service.get_user_by_id(session=session, user_id=user_id)
     return user
+
+
+@router.get("/me")
+async def get_user(
+        session: AsyncSession = Depends(db_helper.session_getter),
+        auth_data: dict = Depends(get_current_user),
+) -> UserRead:
+    user_id = auth_data.get("user_id")
+    service = UserService()
+    user_data = await service.get_user_by_id(session=session, user_id=user_id)
+    return user_data
+
