@@ -145,18 +145,32 @@ async def refresh_token(
     )
 
 
+@router.post("/verify_token")
+async def verify_token(token_data: dict):
+    token = token_data.get("token")
+    payload = decode_jwt(token)
+
+    # Возврат пользователя можно реализовать в виде pydantic model
+    return {
+        "valid": True,
+        "user_id": payload.sub,
+        "email": payload.email,
+    }
+
+
+
 # По сюда комментировал
 
 #
 #
-# # Получение данных авторизованного пользователя
+# Получение данных авторизованного пользователя
 # @router.get("/users/me/", dependencies=[Depends(oauth2_scheme)])
 # def auth_user_check_self_info(
 #         payload: dict = Depends(get_current_token_payload),
 #        # user: UserSchema = Depends(get_current_active_auth_user), # Этот метод для того, чтобы можно было проверять пользователя по token и public_key
 # ):
-#     iat = payload.get("iat")
-#     jti = payload.get("jti")
+#     iat = payload.get("iat") # когда выпущен
+#     jti = payload.get("jti") # идентификационный номер токена
 #
 #     # return {
 #     #     "username": user.username,
@@ -165,12 +179,12 @@ async def refresh_token(
 #     #     "jti": jti,
 #     # }
 #     pass
-#     # token = credentials.credentials
-#     # payload = Проверка токена (token)
-#     # Если payload.type != "access" - ошибка
-#     # Если payload.sub нет, то не найден пользователь
-#     # Вернуть UserInfo или UserData
-#     # нужен эндпоинт для получения текущей сессии (то есть получения данных текущего пользователя)
+    # token = credentials.credentials
+    # payload = Проверка токена (token)
+    # Если payload.type != "access" - ошибка
+    # Если payload.sub нет, то не найден пользователь
+    # Вернуть UserInfo или UserData
+    # нужен эндпоинт для получения текущей сессии (то есть получения данных текущего пользователя)
 #
 #
 # # Выход (отзыв токена)
@@ -186,12 +200,7 @@ async def refresh_token(
 #     # Инвалидируем сессию
 #     pass
 #
-# @router.get("/validate")
-# async def validate_token(credentials: OAuth2PasswordRequestForm = Depends()):
-#     # Проверяем токен
-#     # Либо невалиден, либо
-#     # return {"valid": True, "user_id": payload.sub}
-#     pass
+
 #
 # # @router
 # async def change_password(
