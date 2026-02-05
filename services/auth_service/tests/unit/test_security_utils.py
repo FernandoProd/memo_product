@@ -1,0 +1,26 @@
+import pytest
+
+
+def test_hash_token():
+    from services.auth_service.core.security.utils import hash_token, validate_token
+
+    token = "1234qwertyZXCV"
+    hashed = hash_token(token)
+
+    assert validate_token(token=token, hashed_token=hashed) == True
+
+def test_validate_token():
+    import bcrypt
+    import hashlib
+    from services.auth_service.core.security.utils import validate_token, hash_token
+
+    token = "My_beautiful_token_1"
+
+    sha256_hash = hashlib.sha256(token.encode('utf-8')).digest()
+    hashed_token_1 = bcrypt.hashpw(sha256_hash, bcrypt.gensalt())
+    result1 = validate_token(token, hashed_token_1.decode('utf-8'))
+    assert result1 is True
+
+    hashed_token_2 = ""
+    result2 = validate_token(token, hashed_token_2)
+    assert result2 is False
