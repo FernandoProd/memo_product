@@ -19,6 +19,11 @@ async def lifespan(app: FastAPI):
     await db_helper.dispose()
 
 
+# from services.user_service.core.logging.log_config import setup_logging
+#
+# setup_logging()
+
+
 # ORJSONResponse быстрее отправляет байтики
 main_app = FastAPI(
     default_response_class=ORJSONResponse,
@@ -33,6 +38,7 @@ if __name__ == "__main__":
         "main:main_app",
         host=settings.run.host,
         port=settings.run.port,
+        log_level="info",
         reload=True,
     )
 
