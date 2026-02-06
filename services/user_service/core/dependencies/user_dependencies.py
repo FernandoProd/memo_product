@@ -1,6 +1,9 @@
 from fastapi import HTTPException, Header, Depends
 from services.libs.http_client.auth_client import AuthServiceClient
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_auth_client() -> AuthServiceClient:
@@ -11,6 +14,7 @@ async def get_current_user(
             authorization: Optional[str] = Header(None),
             http_client: AuthServiceClient = Depends(get_auth_client)
 ) -> dict:
+    logger.debug("get_current_user called with authorization: %s", authorization)
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid authorization header")
 
@@ -21,6 +25,7 @@ async def get_current_user(
         )
 
     token = authorization.split("Bearer ")[1]
+    logger.debug("Extracted token: %s", token)
 
     try:
         response = await http_client.get_current_user(token)
@@ -32,6 +37,7 @@ async def get_current_user(
             )
 
         auth_data = response.json()
+        logger.info("get_current_user returning: %s", auth_data)
         return auth_data  # {"user_id": "...", "email": "...", ...}
 
     except Exception as e:
