@@ -31,7 +31,7 @@ class UserService:
         )
 
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=f"User not found {user}")
 
         return user
 
