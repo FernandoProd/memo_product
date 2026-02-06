@@ -76,13 +76,20 @@ async def get_user_by_id(
     user = await service.get_user_by_id(session=session, user_id=user_id)
     return user
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 @router.get("/me")
 async def get_user(
         session: AsyncSession = Depends(db_helper.session_getter),
         auth_data: dict = Depends(get_current_user),
 ) -> UserRead:
-    user_id = auth_data.get("user_id")
+    # Изначально был user_id
+    user_id = auth_data.get("id")
+    print(f"DEBUG: user_id = {user_id}")
+    logger.debug(f"Troubles with something shit: {user_id}")
     service = UserService()
     user_data = await service.get_user_by_id(session=session, user_id=user_id)
     return user_data
