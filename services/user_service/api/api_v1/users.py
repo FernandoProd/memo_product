@@ -9,7 +9,9 @@ from services.user_service.core.schemas.user import UserCreate, UserRead
 from crud import users as users_crud
 from services.user_service.core.security.auth_utils import validate_password
 from fastapi import HTTPException
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Users"])
 
 @router.post("/", response_model=UserRead)
@@ -20,11 +22,13 @@ async def create_user(
         ],
         user_data: UserCreate,
 ):
+    logger.info("Вызов эндпоинта для создания пользователя")
     service = UserService()
     user = await service.create_user_with_hash(
         session=session,
         user_data=user_data,
     )
+    logger.debug("DEBUG: возвращаем значение user - %s",user)
     return user
 
 
@@ -65,6 +69,25 @@ async def verify_user_pwd(
     return user_for_auth
 
 
+@router.get("/me")
+async def get_user(
+        session: AsyncSession = Depends(db_helper.session_getter),
+        auth_data: dict = Depends(get_current_user),
+) -> UserRead:
+    logger.debug("Сообщение для отладки")
+    logger.debug("Сообщение для отладки")
+    logger.debug("Сообщение для отладки")
+    logger.debug("Сообщение для отладки")
+    # Изначально был user_id
+    user_id = auth_data.get("id")
+    print(f"DEBUG: user_id = {user_id}")
+    logger.debug(f"Troubles with something shit: {user_id}")
+    service = UserService()
+    user_data = await service.get_user_by_id(session=session, user_id=user_id)
+    return user_data
+
+
+
 # Ручка для получения всей инфы для create access по user_id
 # Учесть, что тут не защищена ручка, то есть каждый сможет получить без авторизации информацию
 @router.get("/{user_id}", response_model=UserRead)
@@ -76,21 +99,21 @@ async def get_user_by_id(
     user = await service.get_user_by_id(session=session, user_id=user_id)
     return user
 
-import logging
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-@router.get("/me")
-async def get_user(
-        session: AsyncSession = Depends(db_helper.session_getter),
-        auth_data: dict = Depends(get_current_user),
-) -> UserRead:
-    # Изначально был user_id
-    user_id = auth_data.get("id")
-    print(f"DEBUG: user_id = {user_id}")
-    logger.debug(f"Troubles with something shit: {user_id}")
-    service = UserService()
-    user_data = await service.get_user_by_id(session=session, user_id=user_id)
-    return user_data
+# @router.get("/me")
+# async def get_user(
+#         session: AsyncSession = Depends(db_helper.session_getter),
+#         auth_data: dict = Depends(get_current_user),
+# ) -> UserRead:
+#     logger.debug("Сообщение для отладки")
+#     logger.debug("Сообщение для отладки")
+#     logger.debug("Сообщение для отладки")
+#     logger.debug("Сообщение для отладки")
+#     # Изначально был user_id
+#     user_id = auth_data.get("id")
+#     print(f"DEBUG: user_id = {user_id}")
+#     logger.debug(f"Troubles with something shit: {user_id}")
+#     service = UserService()
+#     user_data = await service.get_user_by_id(session=session, user_id=user_id)
+#     return user_data
 
