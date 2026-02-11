@@ -79,7 +79,7 @@ async def get_user(
     logger.debug("Сообщение для отладки")
     logger.debug("Сообщение для отладки")
     # Изначально был user_id
-    user_id = auth_data.get("id")
+    user_id = auth_data.get("user_id")
     print(f"DEBUG: user_id = {user_id}")
     logger.debug(f"Troubles with something shit: {user_id}")
     service = UserService()
