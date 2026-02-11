@@ -11,7 +11,9 @@ from services.auth_service.utils.jwt_utils import decode_jwt
 from services.auth_service.core.busines_logic.auth_server import AuthService
 from typing import Annotated
 from services.auth_service.core.models.db_helper import db_helper
+import logging
 
+logger = logging.getLogger(__name__)
 # Написать http_client для подключения
 # Зависимость для получения HTTP-клиента
 
@@ -147,14 +149,19 @@ async def refresh_token(
 
 @router.post("/verify_token")
 async def verify_token(token_data: dict):
+    logger.debug("Info about token data: %s", token_data)
     token = token_data.get("token")
+    logger.debug("Token: %s", token)
     payload = decode_jwt(token)
+
+    logger.debug("user_id: %s", payload.get("sub"))
+    logger.debug("email: %s", payload.get("email"))
 
     # Возврат пользователя можно реализовать в виде pydantic model
     return {
         "valid": True,
-        "user_id": payload.sub,
-        "email": payload.email,
+        "user_id": payload.get("sub"),
+        "email": payload.get("email"),
     }
 
 

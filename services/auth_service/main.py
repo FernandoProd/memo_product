@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from services.auth_service.api.api_v1.endpoints.auth import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
+from services.auth_service.core.logging.log_config import setup_logging
+import logging
 
+setup_logging()
+logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Auth Service",
     swagger_ui_parameters={
@@ -21,5 +25,6 @@ app.add_middleware(
 app.include_router(auth_router)
 
 if __name__ == "__main__":
+    logger.debug("some information for debug")
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
