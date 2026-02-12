@@ -1,10 +1,5 @@
-import pytest
-import os
-from pathlib import Path
-from unittest.mock import patch
-
 # Импортируем настройки
-from services.user_service.core.config import Settings, DatabaseConfig
+from app.core.config import Settings
 
 
 def test_settings_can_be_created_with_env_file():

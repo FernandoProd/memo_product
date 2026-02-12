@@ -1,5 +1,5 @@
 from fastapi import HTTPException, Depends
-from services.libs.clients.http_client.auth_client import AuthServiceClient
+from libs.clients import AuthServiceClient
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
 

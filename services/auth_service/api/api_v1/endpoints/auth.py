@@ -29,8 +29,7 @@ class UserData(BaseModel):
     password: str
     email: str
 
-from services.libs.clients.http_client.user_client import UserServiceClient
-from services.libs.clients.exceptions import *
+from libs.clients.http_client.user_client import UserServiceClient
 
 
 def get_user_client() -> UserServiceClient:

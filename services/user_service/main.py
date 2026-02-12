@@ -1,22 +1,4 @@
 import logging
-import sys
-
-
-# logging.basicConfig(
-#     level=logging.DEBUG,
-#     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-#     handlers=[
-#         logging.FileHandler('app.log'),
-#         logging.StreamHandler(sys.stdout)
-#     ]
-# )
-#
-# # Устанавливаем уровень для библиотек
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-# logging.getLogger('uvicorn').setLevel(logging.INFO)
-
-
-
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -24,7 +6,7 @@ import uvicorn
 from fastapi.responses import ORJSONResponse
 
 from api import router as api_router
-from core.config import settings
+from app.core.config import settings
 from core.models.db_helper import db_helper
 from services.user_service.core.logging.log_config import setup_logging
 

@@ -1,5 +1,4 @@
-from services.libs.clients.base import BaseClient
-from fastapi import HTTPException, status
+from libs.clients.base import BaseClient
 import httpx
 import logging
 
