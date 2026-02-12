@@ -1,6 +1,5 @@
-from fastapi import HTTPException, Header, Depends
-from services.libs.http_client.auth_client import AuthServiceClient
-from typing import Optional
+from fastapi import HTTPException, Depends
+from services.libs.clients.http_client.auth_client import AuthServiceClient
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
 

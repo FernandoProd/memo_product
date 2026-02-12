@@ -4,10 +4,8 @@ from services.user_service.core.schemas.user import UserCreateInternal
 from services.user_service.crud.users import UserCreate
 from services.user_service.core.security.auth_utils import hash_password
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, Header, Depends
-from services.libs.http_client.auth_client import AuthServiceClient
-from services.libs.clients.exceptions import *
-from typing import Optional
+from fastapi import HTTPException
+
 
 class UserService:
     async def create_user_with_hash(self, session: AsyncSession, user_data: UserCreate) -> User:

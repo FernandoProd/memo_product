@@ -1,11 +1,9 @@
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Response, Request
-from core.schemas.schemas import TokenResponse, LoginRequest, RefreshTokenRequest, LogoutRequest
+from core.schemas.schemas import TokenResponse, LoginRequest
 from fastapi.security import HTTPBearer
-from fastapi import HTTPException, status
-from services.auth_service.auth.dependencies import get_current_token_payload, oauth2_scheme
+from fastapi import HTTPException
 from services.auth_service.auth.helpers import create_access_token, create_refresh_token
 from services.auth_service.utils.jwt_utils import decode_jwt
 from services.auth_service.core.busines_logic.auth_server import AuthService
@@ -31,7 +29,7 @@ class UserData(BaseModel):
     password: str
     email: str
 
-from services.libs.http_client.user_client import UserServiceClient
+from services.libs.clients.http_client.user_client import UserServiceClient
 from services.libs.clients.exceptions import *
 
 
