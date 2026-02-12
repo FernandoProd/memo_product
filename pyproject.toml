@@ -1,5 +1,10 @@
 [tool.poetry]
-package-mode = false # Это означает, что мы не используем poetry для сборки, а только для зависимостей
+package-mode = true # false означает, что мы не используем poetry для сборки, а только для зависимостей
+name = "memo-product"
+version = "0.1.0"
+description = "Monorepo for memo_product microservices"
+authors = ["KatorinDL - katorin.dima@yandex.ru"]
+
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -18,6 +23,7 @@ httpx = "^0.28.1"
 redis = "^7.1.0"
 pytest = "^9.0.2"
 pytest-asyncio = "^1.3.0"
+memo-product-libs = { path = "libs", develop = true }
 
 [dependency-groups]
 dev = [
