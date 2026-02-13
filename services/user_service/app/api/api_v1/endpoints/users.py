@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.user_service.core.dependencies.user_dependencies import get_current_user
 from services.user_service.core.busines_logic.user import UserService
-from services.user_service.core.models import db_helper
+from app.models import db_helper
 from services.user_service.core.schemas.user import UserCreate, UserRead
 from services.user_service.core.security.auth_utils import validate_password
 from fastapi import HTTPException

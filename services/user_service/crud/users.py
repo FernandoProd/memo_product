@@ -1,14 +1,12 @@
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.user_service.core.models import User
+from app.models import User
 from sqlalchemy import select
 
-from services.user_service.core.schemas.user import UserCreate, UserCreateInternal
+from services.user_service.core.schemas.user import UserCreateInternal
 from typing import Optional #ОПять забыл нахрена тут Optional
 
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
 
 async def get_all_users(
         session: AsyncSession
