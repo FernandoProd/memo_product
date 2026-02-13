@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from core.config import settings
-from .users import router as users_router
+from services.user_service.app.core.config import settings
+from services.user_service.app.api.api_v1.endpoints.users import router as users_router
 
 router = APIRouter(
     prefix=settings.api.v1.prefix,
@@ -11,5 +11,5 @@ router.include_router(
 )
 
 
-print(router.prefix)
+# print(router.prefix)
 # services.user_service.app.api.api_v1.endpoints
