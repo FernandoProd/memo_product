@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.user_service.core.dependencies.user_dependencies import get_current_user
-from services.user_service.core.busines_logic.user import UserService
-from app.models import db_helper
-from services.user_service.core.schemas.user import UserCreate, UserRead
-from services.user_service.core.security.auth_utils import validate_password
+from services.user_service.app.dependencies.user_dependencies import get_current_user
+from services.user_service.app.busines_logic.user import UserService
+from services.user_service.app.models import db_helper
+from services.user_service.app.schemas.user import UserCreate, UserRead
+from services.user_service.app.security.auth_utils import validate_password
 from fastapi import HTTPException
 import logging
 

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User
 from sqlalchemy import select
 
-from services.user_service.core.schemas.user import UserCreateInternal
+from app.schemas.user import UserCreateInternal
 from typing import Optional #ОПять забыл нахрена тут Optional
 
 

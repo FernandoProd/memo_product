@@ -8,7 +8,7 @@ from fastapi.responses import ORJSONResponse
 from app.api import router as api_router
 from app.core.config import settings
 from core.models.db_helper import db_helper
-from services.user_service.core.logging.log_config import setup_logging
+from memo_libs.logging.log_config import setup_logging
 
 setup_logging()
 logger = logging.getLogger(__name__)
