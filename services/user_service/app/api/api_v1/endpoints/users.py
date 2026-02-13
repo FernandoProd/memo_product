@@ -6,7 +6,6 @@ from services.user_service.core.dependencies.user_dependencies import get_curren
 from services.user_service.core.busines_logic.user import UserService
 from services.user_service.core.models import db_helper
 from services.user_service.core.schemas.user import UserCreate, UserRead
-from crud import users as users_crud
 from services.user_service.core.security.auth_utils import validate_password
 from fastapi import HTTPException
 import logging

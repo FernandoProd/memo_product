@@ -29,7 +29,7 @@ class UserData(BaseModel):
     password: str
     email: str
 
-from libs.clients.http_client.user_client import UserServiceClient
+from memo_libs.clients.http_client.user_client import UserServiceClient
 
 
 def get_user_client() -> UserServiceClient:

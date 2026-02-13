@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from libs.settings import GeneralSettings
+from memo_libs.settings import GeneralSettings
 from pathlib import Path
 
 USER_SERVICE_DIR = Path(__file__).parent.parent.parent # Корень user_service

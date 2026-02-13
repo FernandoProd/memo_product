@@ -8,3 +8,14 @@ version = "0.1.0"
 description = "Shared libraries for memo_product microservices"
 requires-python = ">=3.12"
 dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."] # смотрим в текущей директории
+include = [
+    "clients",
+    "logging",
+    "database",
+    "security",
+    "settings",
+    "exceptions"
+]

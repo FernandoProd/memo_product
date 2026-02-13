@@ -9,3 +9,7 @@ router.include_router(
     users_router,
     prefix=settings.api.v1.users
 )
+
+
+print(router.prefix)
+# services.user_service.app.api.api_v1.endpoints

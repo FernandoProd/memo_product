@@ -1,5 +1,5 @@
 from fastapi import HTTPException, Depends
-from libs.clients import AuthServiceClient
+from memo_libs.clients import AuthServiceClient
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import logging
 

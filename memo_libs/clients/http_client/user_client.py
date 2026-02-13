@@ -1,4 +1,4 @@
-from libs.clients.base import BaseClient
+from memo_libs.clients.base import BaseClient
 import httpx
 
 class UserServiceClient(BaseClient):

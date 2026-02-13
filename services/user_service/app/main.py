@@ -5,7 +5,7 @@ from fastapi import FastAPI
 import uvicorn
 from fastapi.responses import ORJSONResponse
 
-from api import router as api_router
+from app.api import router as api_router
 from app.core.config import settings
 from core.models.db_helper import db_helper
 from services.user_service.core.logging.log_config import setup_logging
