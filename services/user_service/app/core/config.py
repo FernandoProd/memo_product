@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from memo_libs.settings import GeneralSettings
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 USER_SERVICE_DIR = Path(__file__).parent.parent.parent # Корень user_service
 
@@ -32,9 +35,11 @@ class Settings(GeneralSettings):
         ),
         "case_sensitive": False,  # Переменные окружения будут читаться без учета регистра
     }
+    logger.debug("Вот, что выводится в model_config: %s", model_config)
 
 
 settings = Settings()
+logger.info("Успешно начали отладку!")
 print("PostrgeURL: ", settings.db.url)
 print("Echo: ", settings.db.echo)
 print("JWT secret key: ", settings.jwt.secret_key)
