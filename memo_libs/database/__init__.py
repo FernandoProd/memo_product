@@ -1,5 +1,7 @@
 __all__ = {
-    "DatabaseHelper"
+    "DatabaseHelper",
+    "CoreBase"
 }
 
 from .db_helper import DatabaseHelper
+from .base import CoreBase
