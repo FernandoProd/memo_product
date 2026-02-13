@@ -24,21 +24,19 @@ class Settings(GeneralSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
 
-    model_config = GeneralSettings.model_config.copy()
-    model_config["env_file"](
-       env_file=(
-           USER_SERVICE_DIR / ".env.template",
-           USER_SERVICE_DIR / ".env",
-       ),
-        case_sensitive=False, # Что это делает?
-        # env_nested_delimiter="__",
-        # env_prefix="APP_CONFIG__",
-    )
+    model_config = {
+        **GeneralSettings.model_config,
+        "env_file": (
+            USER_SERVICE_DIR / ".env.template",
+            USER_SERVICE_DIR / ".env",
+        ),
+        "case_sensitive": False,  # Переменные окружения будут читаться без учета регистра
+    }
 
 
 settings = Settings()
-# print(settings.db.url)
-# print(settings.db.echo)
-# print(settings.jwt.secret_key)
+print("PostrgeURL: ", settings.db.url)
+print("Echo: ", settings.db.echo)
+print("JWT secret key: ", settings.jwt.secret_key)
 
 #http://127.0.0.1:8000/docs
