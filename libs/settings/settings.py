@@ -46,7 +46,7 @@ class RedisConfig(BaseModel):
 # Разобраться для чего выносить jwt конфиг в общий файл
 class JWTConfig(BaseModel):
     """JWT settings"""
-    secret_key: str = "change_me_in_production"
+    secret_key: str = "change_me_in_production" # Разобраться, куда лучше его вынести (также в env file)
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
@@ -74,10 +74,6 @@ class GeneralSettings(BaseSettings):
     environment: str = "development"
 
     model_config = SettingsConfigDict(
-       # env_file=(
-       #     SERVICE_DIR / ".env.template",
-       #     SERVICE_DIR / ".env",        # Не указываем путь, так как в каждом классе он мудет специфичен
-       # ),
         case_sensitive=False,
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
