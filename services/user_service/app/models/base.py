@@ -5,7 +5,7 @@ from core.config import settings
 
 
 class Base(CoreBase):
-    # __abstract__ = True
+    __abstract__ = True
 
     metadata = MetaData(
         naming_convention=settings.db.naming_convention,
