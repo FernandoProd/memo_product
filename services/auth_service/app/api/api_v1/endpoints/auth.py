@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Response, Request
-from core.schemas.schemas import TokenResponse, LoginRequest
+from app.schemas.schemas import TokenResponse, LoginRequest
 from fastapi.security import HTTPBearer
 from fastapi import HTTPException
-from services.auth_service.auth.helpers import create_access_token, create_refresh_token
-from services.auth_service.utils.jwt_utils import decode_jwt
-from services.auth_service.core.busines_logic.auth_server import AuthService
+from app.auth.helpers import create_access_token, create_refresh_token
+from app.utils.jwt_utils import decode_jwt
+from app.busines_logic.auth_server import AuthService
 from typing import Annotated
-from services.auth_service.core.models.db_helper import db_helper
+from app.models.db_helper import db_helper
 import logging
 
 logger = logging.getLogger(__name__)

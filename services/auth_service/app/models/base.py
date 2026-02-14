@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
-from core.config import settings
+from app.core.config import settings
 
 
 

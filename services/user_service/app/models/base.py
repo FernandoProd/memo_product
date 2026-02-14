@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData
 from memo_libs.database import CoreBase
-from core.config import settings
+from app.core.config import settings
 
 
 

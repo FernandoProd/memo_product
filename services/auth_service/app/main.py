@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from services.auth_service.api.api_v1.endpoints.auth import router as auth_router
+from app.api.api_v1 import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from services.auth_service.core.logging.log_config import setup_logging
 import logging

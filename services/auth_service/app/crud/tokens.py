@@ -1,10 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.auth_service.core.models import RefreshToken
-from services.auth_service.core.schemas.schemas import RefreshTokenInfo
-from services.auth_service.utils.jwt_utils import decode_jwt
-from services.auth_service.core.security.utils import hash_token
+from app.models import RefreshToken
 
-from datetime import datetime, timezone
 
 # def get_token_lifetime_info(token: str) -> dict:
 #     """

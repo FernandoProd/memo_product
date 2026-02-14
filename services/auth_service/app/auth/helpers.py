@@ -1,8 +1,7 @@
-from core.config import settings
-from core.schemas.schemas import UserSchema
+from app.core.config import settings
 from datetime import timedelta
 
-from utils import jwt_utils
+from app.utils import jwt_utils
 
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"

@@ -1,8 +1,5 @@
-import pytest
-
-
 def test_hash_token():
-    from services.auth_service.core.security.utils import hash_token, validate_token
+    from app.core.security.utils import hash_token, validate_token
 
     token = "1234qwertyZXCV"
     hashed = hash_token(token)
@@ -12,7 +9,7 @@ def test_hash_token():
 def test_validate_token():
     import bcrypt
     import hashlib
-    from services.auth_service.core.security.utils import validate_token, hash_token
+    from app.core.security.utils import validate_token
 
     token = "My_beautiful_token_1"
 

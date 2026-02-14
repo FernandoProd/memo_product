@@ -1,9 +1,9 @@
-from fastapi import Depends, HTTPException, status, Form
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jwt import InvalidTokenError
-from services.auth_service.utils import jwt_utils
-from services.auth_service.core.schemas.schemas import UserSchema
+from app.utils import jwt_utils
+from app.schemas import UserSchema
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")

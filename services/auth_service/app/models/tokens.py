@@ -1,11 +1,10 @@
 from typing import Optional
 
-from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 import uuid
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy import String, Boolean, Index
-from core.models import Base
+from app.models import Base
 import datetime
 
 

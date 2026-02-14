@@ -1,5 +1,5 @@
 import redis
-from services.auth_service.core.config import settings
+from app.core.config import settings
 
 
 redis_client = redis.Redis(
