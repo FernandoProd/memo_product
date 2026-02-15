@@ -1,7 +1,8 @@
 # tests/test_core/test_alembic.py
-import pytest
 import configparser
 from pathlib import Path
+
+import pytest
 from sqlalchemy import create_engine, text
 
 

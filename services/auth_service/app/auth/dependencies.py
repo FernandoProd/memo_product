@@ -2,12 +2,11 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from jwt import InvalidTokenError
-from app.utils import jwt_utils
-from app.schemas import UserSchema
+from services.auth_service.app.utils import jwt_utils
+from services.auth_service.app.schemas.schemas import UserSchema
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
-
 
 def get_current_token_payload(
         # credentials: HTTPAuthorizationCredentials = Depends(http_bearer), #Вместо токена приходят credentials
@@ -35,7 +34,6 @@ def verify_users_token(token: str):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
-
 
 
 # Зависимость для получения актуальной информации о пользователе

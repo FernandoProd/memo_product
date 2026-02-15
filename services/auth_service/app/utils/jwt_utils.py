@@ -1,4 +1,4 @@
-from app.core.config import settings
+from services.auth_service.app.core.config import settings
 from datetime import datetime, timedelta
 import jwt
 import uuid

@@ -1,7 +1,7 @@
-from app.core.config import settings
+from services.auth_service.app.core.config import settings
+from services.auth_service.app.utils import jwt_utils
 from datetime import timedelta
 
-from app.utils import jwt_utils
 
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"
@@ -17,6 +17,7 @@ def create_jwt(
         TOKEN_TYPE_FIELD: token_type
     }
     jwt_payload.update(token_data)
+
     return jwt_utils.encode_jwt(
         payload=jwt_payload,
         expire_minutes=expire_minutes,

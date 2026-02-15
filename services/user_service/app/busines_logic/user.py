@@ -1,10 +1,11 @@
+from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from services.user_service.app.core.security.auth_utils import hash_password
 from services.user_service.app.crud import users
 from services.user_service.app.models import User
-from services.user_service.app.schemas.user import UserCreateInternal
 from services.user_service.app.schemas.user import UserCreate
-from services.user_service.app.core.security.auth_utils import hash_password
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException
+from services.user_service.app.schemas.user import UserCreateInternal
 
 class UserService:
     async def create_user_with_hash(self, session: AsyncSession, user_data: UserCreate) -> User:

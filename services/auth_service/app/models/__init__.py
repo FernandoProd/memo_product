@@ -4,6 +4,6 @@ __all__ = (
     "RefreshToken",
 )
 
-from .db_helper import db_helper
-from .base import Base
-from .tokens import RefreshToken
+from services.auth_service.app.models.db import db_helper
+from services.auth_service.app.models.base import Base
+from services.auth_service.app.models.tokens import RefreshToken

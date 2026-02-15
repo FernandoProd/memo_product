@@ -1,5 +1,6 @@
 from app.api.api_v1.endpoints.users import router as api_router
 from fastapi import FastAPI
+
 from services.user_service.app.core.config import settings
 
 main_app = FastAPI()

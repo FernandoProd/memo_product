@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel, PostgresDsn, RedisDsn
-# from pathlib import Path
+from pathlib import Path
 
 # USER_SERVICE_DIR = Path(__file__).parent.parent
 
@@ -46,11 +46,12 @@ class RedisConfig(BaseModel):
 # Разобраться для чего выносить jwt конфиг в общий файл
 class JWTConfig(BaseModel):
     """JWT settings"""
-    secret_key: str = "change_me_in_production" # Разобраться, куда лучше его вынести (также в env file)
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
-    refresh_token_expire_days: int = 7
-
+    pass
+    # private_key_path: Path
+    # public_key_path: Path
+    # algorithm: str
+    # access_token_expire_minutes: int
+    # refresh_token_expire_days: int
 
 
 class GeneralSettings(BaseSettings):
@@ -62,7 +63,7 @@ class GeneralSettings(BaseSettings):
     # Nested configurations
     db: DatabaseConfig
     redis: RedisConfig = RedisConfig()
-    jwt: JWTConfig = JWTConfig()
+    # jwt: JWTConfig = JWTConfig()
 
 
     # CORS (can be overridden per service) (how can I use it?)

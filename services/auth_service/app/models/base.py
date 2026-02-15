@@ -1,12 +1,12 @@
 from sqlalchemy import MetaData
-from sqlalchemy.orm import DeclarativeBase
-from app.core.config import settings
+from memo_libs.database import CoreBase
+from services.user_service.app.core.config import settings
 
 
-
-class Base(DeclarativeBase):
+class Base(CoreBase):
     __abstract__ = True
 
     metadata = MetaData(
         naming_convention=settings.db.naming_convention,
     )
+    # You can add some mixins to this class

@@ -1,12 +1,10 @@
+import uuid
 from datetime import datetime
 from typing import Optional
-import uuid
-
-from sqlalchemy import String, Text
+from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
-
-from .base import Base
+from services.user_service.app.models.base import Base
 
 
 class User(Base):

@@ -1,11 +1,10 @@
 from typing import Optional
-
 from sqlalchemy.orm import Mapped, mapped_column
 import uuid
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy import String, Boolean, Index
-from app.models import Base
 import datetime
+from services.auth_service.app.models import Base
 
 
 class RefreshToken(Base):

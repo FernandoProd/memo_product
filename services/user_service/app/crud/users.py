@@ -1,11 +1,11 @@
+from typing import Optional  # ОПять забыл нахрена тут Optional
 from typing import Sequence
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import User
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.user import UserCreateInternal
-from typing import Optional #ОПять забыл нахрена тут Optional
+from services.user_service.app.models import User
+from services.user_service.app.schemas.user import UserCreateInternal
+
 
 
 async def get_all_users(

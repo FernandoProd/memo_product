@@ -4,6 +4,6 @@ __all__ = (
     "User",
 )
 
-from .db import db_helper
-from .base import Base
-from .user import User
+from services.user_service.app.models.base import Base
+from services.user_service.app.models.db import db_helper
+from services.user_service.app.models.user import User

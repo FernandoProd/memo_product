@@ -1,24 +1,29 @@
-from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Response, Request
-from app.schemas.schemas import TokenResponse, LoginRequest
+from fastapi import (
+    Response,
+    Request,
+    HTTPException,
+    APIRouter,
+    Depends,
+)
 from fastapi.security import HTTPBearer
-from fastapi import HTTPException
-from app.auth.helpers import create_access_token, create_refresh_token
-from app.utils.jwt_utils import decode_jwt
-from app.busines_logic.auth_server import AuthService
 from typing import Annotated
-from app.models.db_helper import db_helper
 import logging
+from services.auth_service.app.schemas.schemas import TokenResponse, LoginRequest
+from services.auth_service.app.auth.helpers import create_access_token, create_refresh_token
+from services.auth_service.app.utils.jwt_utils import decode_jwt
+from services.auth_service.app.busines_logic.auth_server import AuthService
+from services.auth_service.app.models.db import db_helper
+from memo_libs.clients.exceptions import (
+    InvalidCredentialsError,
+    UserServiceUnavailableError,
+    UserServiceError,
+)
+
 
 logger = logging.getLogger(__name__)
-# Написать http_client для подключения
-# Зависимость для получения HTTP-клиента
-
 
 http_bearer = HTTPBearer(auto_error=False)
-
-
 router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(http_bearer)])
 
 # api/v1/endpoints/auth.py

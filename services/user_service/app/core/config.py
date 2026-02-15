@@ -1,7 +1,7 @@
+import logging
+from pathlib import Path
 from pydantic import BaseModel
 from memo_libs.settings import GeneralSettings
-from pathlib import Path
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,6 @@ settings = Settings()
 logger.info("Успешно начали отладку!")
 print("PostrgeURL: ", settings.db.url)
 print("Echo: ", settings.db.echo)
-print("JWT secret key: ", settings.jwt.secret_key)
+# print("JWT secret key: ", settings.jwt.secret_key)
 
 #http://127.0.0.1:8000/docs

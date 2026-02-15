@@ -1,14 +1,17 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from services.user_service.app.api import router as api_router
+from memo_libs.logging.log_config import setup_logging
+
+from services.user_service.app.api import router as api_router # Перепроверить
 from services.user_service.app.core.config import settings
 from services.user_service.app.models.db import db_helper
-from memo_libs.logging.log_config import setup_logging
+
+
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -31,7 +34,7 @@ main_app = FastAPI(
     lifespan=lifespan,
 )
 logger.debug("Отладочное сообщение")
-main_app.include_router(api_router, prefix=settings.api.prefix)
+main_app.include_router(api_router)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import RefreshToken
+from services.auth_service.app.models import RefreshToken
 
 
 # def get_token_lifetime_info(token: str) -> dict:

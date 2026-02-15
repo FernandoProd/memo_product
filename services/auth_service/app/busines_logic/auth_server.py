@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import RefreshToken
+from services.auth_service.app.models import RefreshToken
 from datetime import datetime
-from app.utils.jwt_utils import decode_jwt
-from app.core.security.utils import hash_token
-from app.crud import tokens
+from services.auth_service.app.utils.jwt_utils import decode_jwt
+from services.auth_service.app.core.security.utils import hash_token
+from services.auth_service.app.crud import tokens
 
 class AuthService:
     async def add_token_info_into_db(
