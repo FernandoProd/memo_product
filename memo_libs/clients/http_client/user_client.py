@@ -11,7 +11,7 @@ class UserServiceClient(BaseClient):
                               password: str
                               ):
             response = await self.post(
-                "/api/api/v1/users/verify",   # тут ошибка должно быть  api/v1/users/verify
+                "/api/v1/users/verify",   # тут ошибка должно быть  api/v1/users/verify
                 params={
                     "email": email,
                     "password": password
@@ -23,6 +23,6 @@ class UserServiceClient(BaseClient):
             self,
             user_id: str,
     ) -> httpx.Response:
-        response = await self.get(f'/api/api/v1/users/{user_id}')
+        response = await self.get(f'/api/v1/users/{user_id}')
 
         return response
