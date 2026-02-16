@@ -1,0 +1,49 @@
+import logging
+from contextlib import asynccontextmanager
+
+import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
+
+from memo_libs.logging.log_config import setup_logging
+
+from services.user_service.app.api import router as api_router # Перепроверить
+from services.user_service.app.core.config import settings
+from services.user_service.app.models.db import db_helper
+
+
+
+setup_logging()
+logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup
+
+    yield
+    # shutdown
+    print("dispose engine")
+    await db_helper.dispose()
+
+
+logger.debug("Отладочное сообщение")
+
+# ORJSONResponse быстрее отправляет байтики
+main_app = FastAPI(
+    default_response_class=ORJSONResponse,
+    lifespan=lifespan,
+)
+logger.debug("Отладочное сообщение")
+main_app.include_router(api_router)
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:main_app",
+        host=settings.run.host,
+        port=settings.run.port,
+        log_level=None,
+        reload=True,
+    )
+
+# http://127.0.0.1:8000
