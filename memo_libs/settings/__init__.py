@@ -1,5 +1,6 @@
 __all__ = (
     "GeneralSettings",
+    "RedisConfig"
 )
 
-from .settings import GeneralSettings
+from .settings import GeneralSettings, RedisConfig

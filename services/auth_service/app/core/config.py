@@ -2,7 +2,7 @@ from pathlib import Path
 from pydantic import BaseModel, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
-from memo_libs.settings import GeneralSettings
+from memo_libs.settings import GeneralSettings, RedisConfig
 import logging
 
 
@@ -38,11 +38,12 @@ class AuthJWT(BaseModel):
 #         "pk": "pk_%(table_name)s",
 #     }
 
-class RedisDBConfig(BaseModel):
-    REDIS_HOST: str = "localhost"  # перенести чтение на .env файл
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
-    REDIS_PASSWORD: str = "redis"
+class AuthRedisConfig(RedisConfig):
+    # REDIS_HOST: str = "localhost"  # перенести чтение на .env файл
+    # REDIS_PORT: int = 6379
+    # REDIS_DB: int = 0
+    # REDIS_PASSWORD: str = "redis"
+    url = "redis://localhost:6379/0"
 
 
 class Settings(GeneralSettings):
