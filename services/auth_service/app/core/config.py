@@ -1,5 +1,5 @@
 from pathlib import Path
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from memo_libs.settings import GeneralSettings, RedisConfig
@@ -43,7 +43,7 @@ class AuthRedisConfig(RedisConfig):
     # REDIS_PORT: int = 6379
     # REDIS_DB: int = 0
     # REDIS_PASSWORD: str = "redis"
-    url = "redis://localhost:6379/0"
+    url: RedisDsn = "redis://localhost:6379/0"
 
 
 class Settings(GeneralSettings):
@@ -51,6 +51,7 @@ class Settings(GeneralSettings):
     run: RunConfig = RunConfig()
     auth_jwt: AuthJWT = AuthJWT()
     # api: ApiPrefix = ApiPrefix()
+    redis: AuthRedisConfig = AuthRedisConfig()
 
     model_config = {
         **GeneralSettings.model_config,
@@ -70,3 +71,4 @@ print("Echo: ", settings.db.echo)
 print("JWT private key path: ", settings.auth_jwt.private_key_path)
 print("JWT public key path: ", settings.auth_jwt.public_key_path)
 print("JWT algorithm: ", settings.auth_jwt.algorithm)
+print("redis test: ", settings.redis.url)
