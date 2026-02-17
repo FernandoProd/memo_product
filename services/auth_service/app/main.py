@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from services.auth_service.app.api.api_v1.endpoints.auth import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from memo_libs.logging.log_config import setup_logging
-from services.auth_service.app.models.redis import get_redis_pool
+from services.auth_service.app.models.redis_pool import get_redis_pool
 from contextlib import asynccontextmanager
 import logging
 
