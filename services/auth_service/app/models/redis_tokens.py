@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class RedisRefreshToken(BaseModel):
-    user_id: int
+    user_id: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     model_config = ConfigDict(
@@ -71,7 +71,7 @@ print(asyncio.run(test_redis_saving()))
 
 # Для запуска из корня всего проекта
 # PYTHONPATH=. python services/auth_service/app/models/redis_tokens.py
-
+# $env:PYTHONPATH="."; python services/auth_service/app/models/redis_tokens.py     На windows
 
 # async def simple_test():
 #     redis_client = redis.from_url(str(settings.redis.url), decode_responses=True)
