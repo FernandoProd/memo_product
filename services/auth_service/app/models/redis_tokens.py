@@ -24,14 +24,14 @@ class RedisRefreshToken(BaseModel):
 async def save_refresh_token(
     redis_client: redis.Redis,
     refresh_token: str,
-    user_id: int,
+    user_id: str,
     ttl_days: int
 ) -> None:
     try:
         token_data = RedisRefreshToken(user_id=user_id)
         key = f"rt:{refresh_token}"
 
-        # save with ttl
+        # save with ttl (setex getting used for delete our token if it is expired)
         result = await redis_client.setex(
             key,
             ttl_days * 24 * 60 * 60,
@@ -49,6 +49,34 @@ async def get_user_id_by_refresh_token():
 async def delete_refresh_token():
     pass
 
+async def is_token_active(
+        redis_client: redis.Redis,
+        refresh_token: str,
+) -> bool:
+    try:
+        # We'll check here is token active or not
+        key = f"rt:{refresh_token}"
+        # If key isn't None we are getting data
+        data = await redis_client.get(key)
+        if data:
+            return True
+    except Exception as e:
+        logger.error(f"Error while check if token is active: {e}")
+        return False
+
+async def revoke_token(
+    redis_client: redis.Redis,
+    refresh_token: str
+) -> None:
+    try:
+        # Revoke token
+        key = f"rt:{refresh_token}"
+        await redis_client.delete(key)
+        logger.debug(f"Token revoked from Redis: {refresh_token}")
+    except Exception as e:
+        logger.error(f"Error while revoke token: {e}")
+
+
 
 async def test_redis_saving():
     redis_client = redis.from_url(settings.redis.url, decode_responses=True) # decode_responses нужен для возвращение строк, а не байтов
@@ -56,7 +84,7 @@ async def test_redis_saving():
     await save_refresh_token(
         redis_client=redis_client,
         refresh_token = "refresh-token-for-test",
-        user_id=1,
+        user_id="some_hash",
         ttl_days=7
     )
 
@@ -64,29 +92,10 @@ async def test_redis_saving():
     await redis_client.aclose() # Может async with лучше использовать?
     return result
 
-# if __name__ == "__main__":
-#     asyncio.run(test_redis_saving())
-
 print(asyncio.run(test_redis_saving()))
 
 # Для запуска из корня всего проекта
-# PYTHONPATH=. python services/auth_service/app/models/redis_tokens.py
+# PYTHONPATH=. python services/auth_service/app/models/redis_tokens.py   на Linux
 # $env:PYTHONPATH="."; python services/auth_service/app/models/redis_tokens.py     На windows
 
-# async def simple_test():
-#     redis_client = redis.from_url(str(settings.redis.url), decode_responses=True)
-#
-#     # Простая запись
-#     await redis_client.setex("test:key", 60, "Hello Redis!")
-#
-#     # Простое чтение
-#     value = await redis_client.get("test:key")
-#     print(f"Значение: {value}")
-#
-#     await redis_client.aclose()
-#     return value
-#
-#
-# if __name__ == "__main__":
-#     result = asyncio.run(simple_test())
-#     print(f"Результат: {result}")
+
