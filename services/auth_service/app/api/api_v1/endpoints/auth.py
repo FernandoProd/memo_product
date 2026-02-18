@@ -35,7 +35,8 @@ class UserData(BaseModel):
     email: str
 
 from memo_libs.clients.http_client.user_client import UserServiceClient
-
+from services.auth_service.app.models.redis_tokens import save_refresh_token
+from services.auth_service.app.core.config import settings
 
 def get_user_client() -> UserServiceClient:
     return UserServiceClient()
@@ -43,7 +44,8 @@ def get_user_client() -> UserServiceClient:
 # Логин - получение токенов по login_data
 @router.post("/login", response_model=TokenResponse)
 async def login(
-        fastapi_response: Response,
+        request: Request,
+        fastapi_response: Response, # for redis_client
         login_data: LoginRequest,
         session: Annotated[
             AsyncSession,
@@ -76,6 +78,17 @@ async def login(
     )
     refresh_token = create_refresh_token(
         user=user_data
+    )
+
+    user_id = user_data["sub"]
+
+    # save refresh token into redis
+    redis_client = request.app.state.redis_client
+    await save_refresh_token(
+        redis_client=redis_client,
+        refresh_token=refresh_token,
+        user_id=user_id,
+        ttl_days=settings.auth_jwt.refresh_token_expire_days
     )
 
     # add refresh token into db
