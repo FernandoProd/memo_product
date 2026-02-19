@@ -19,6 +19,7 @@ from memo_libs.clients.exceptions import (
     UserServiceUnavailableError,
     UserServiceError,
 )
+from services.auth_service.app.models.redis_tokens import is_token_active
 
 
 logger = logging.getLogger(__name__)
@@ -125,11 +126,37 @@ async def login(
 async def refresh_token(
         fastapi_request: Request,
         # fastapi_response: Response,
+        session: Annotated[
+            AsyncSession,
+            Depends(db_helper.session_getter)
+        ],
         http_client: UserServiceClient = Depends(get_user_client),
 ):
     refresh_token = fastapi_request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(401, "No refresh token")
+
+    # Check: is refresh token active?
+    if await is_token_active(
+        redis_client=fastapi_request.app.state.redis_client,
+        refresh_token=refresh_token,
+    ):
+        logger.info("Its great, there is token in redis")
+        # You should check token activity
+        # If the token is revoked get a new refresh token
+        print("Проверь revoked он или нет")
+        # raise Exception("Check check")
+
+    else:
+        # Checking activity of refresh token into db
+        service = AuthService()
+        has_token = await service.refresh_token_into_db(
+            session=session,
+            refresh_token=refresh_token,
+        )
+        if not has_token:
+            raise HTTPException(401, "Invalid or revoked refresh token")
+        logger.info("There isn't token in database: %s", refresh_token)
 
     # 1. Проверка что тип токена "refresh"
     # 1. Сравнение токена с БД
