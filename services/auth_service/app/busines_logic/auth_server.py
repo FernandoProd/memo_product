@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.auth_service.app.crud.tokens import get_refresh_token
+from services.auth_service.app.crud.tokens import get_refresh_token, revoke_token
 from services.auth_service.app.models import RefreshToken
 from datetime import datetime
 from services.auth_service.app.utils.jwt_utils import decode_jwt
@@ -44,6 +44,20 @@ class AuthService:
             hashed_token = hash_token(refresh_token)
             check_token = await get_refresh_token(session, hashed_token)
             if check_token:
+                return True
+            return False
+        except Exception as e:
+            raise e
+
+    async def revoke_refresh_token(
+            self,
+            session: AsyncSession,
+            refresh_token: str,
+    ):
+        try:
+            hashed_token = hash_token(refresh_token)
+            revoked = await revoke_token(session, hashed_token)
+            if revoked:
                 return True
             return False
         except Exception as e:
