@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
     yield
     # Закрываем соединения
     await redis_client.close()
+
 app = FastAPI(
     title="Auth Service",
     lifespan=lifespan,
