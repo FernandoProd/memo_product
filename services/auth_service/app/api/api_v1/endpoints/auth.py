@@ -144,7 +144,6 @@ async def refresh_token(
         logger.info("Its great, there is token in redis")
         # You should check token activity
         # If the token is revoked get a new refresh token
-        print("Проверь revoked он или нет")
         # raise Exception("Check check")
 
     else:
