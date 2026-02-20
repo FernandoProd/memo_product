@@ -170,7 +170,6 @@ async def refresh_token(
         user_service_response = await http_client.get_user_by_id(user_id)
         user_data = user_service_response.json()
     except HTTPException as e:
-        print(f" На этом этапе залупа какая-то")
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
     user = {
@@ -205,6 +204,46 @@ async def verify_token(token_data: dict):
         "email": payload.get("email"),
     }
 
+
+# Выход (отзыв токена)
+@router.post("/logout", response_model=None)
+async def logout(
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter)
+    ],
+    request: Request,
+    response: Response,
+):
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="No refresh token in cookies")
+
+    redis_client = request.app.state.redis_client
+    # if the token exist (проверить есть ли он там вообще), если да, то удалить из redis
+    await redis_client.delete(f"rt:{refresh_token}")
+
+    # Проверить есть ли токен в БД, если да, то удалить
+    service = AuthService()
+    revoked_token = await service.revoke_refresh_token(
+        session=session,
+        refresh_token=refresh_token,
+    )
+
+    if not revoked_token:
+        raise HTTPException(status_code=400, detail="Refresh token still expired")
+    logger.info("Refresh token was revoked successfully: %s", revoked_token)
+
+    response.delete_cookie(
+        key="refresh_token",
+        path="/",
+        secure=True,
+        httponly=True,
+        samesite="strict"
+    )
+
+
+    return {"message": "Logged out successfully"}
 
 
 # По сюда комментировал
