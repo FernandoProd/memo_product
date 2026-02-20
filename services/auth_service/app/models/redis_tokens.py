@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 class RedisRefreshToken(BaseModel):
     user_id: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    revoked: bool = False
 
     model_config = ConfigDict(
         json_encoders={
@@ -28,7 +29,7 @@ async def save_refresh_token(
     ttl_days: int
 ) -> None:
     try:
-        token_data = RedisRefreshToken(user_id=user_id)
+        token_data = RedisRefreshToken(user_id=user_id, revoked=False)
         key = f"rt:{refresh_token}"
 
         # save with ttl (setex getting used for delete our token if it is expired)
@@ -58,8 +59,10 @@ async def is_token_active(
         key = f"rt:{refresh_token}"
         # If key isn't None we are getting data
         data = await redis_client.get(key)
-        if data:
-            return True
+        if not data:
+            return False
+        token_data = RedisRefreshToken.model_validate_json(data)
+        return not token_data.revoked
     except Exception as e:
         logger.error(f"Error while check if token is active: {e}")
         return False
