@@ -74,6 +74,9 @@ class GeneralSettings(BaseSettings):
     debug: bool = False
     environment: str = "development"
 
+    # For X-Internal-API-key
+    internal_api_key: str = ""
+
     model_config = SettingsConfigDict(
         case_sensitive=False,
         env_nested_delimiter="__",
