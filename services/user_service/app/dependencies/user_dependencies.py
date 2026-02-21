@@ -1,7 +1,9 @@
 import logging
-from fastapi import HTTPException, Depends
+
+from fastapi import HTTPException, Depends, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from memo_libs.clients import AuthServiceClient
+from services.user_service.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -44,3 +46,11 @@ async def get_current_user(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+async def verify_internal_api_key(x_internal_api_key: str = Header(...)) -> str:
+    if x_internal_api_key != settings.internal_api_key:
+        raise HTTPException(status_code=401, detail="Invalid internal API key")
+    return x_internal_api_key
