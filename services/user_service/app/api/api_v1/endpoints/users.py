@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.user_service.app.busines_logic.user import UserService
 from services.user_service.app.core.security.auth_utils import validate_password
-from services.user_service.app.dependencies.user_dependencies import get_current_user
+from services.user_service.app.dependencies.user_dependencies import get_current_user, verify_internal_api_key
 from services.user_service.app.models import db_helper
 from services.user_service.app.schemas.user import UserCreate, UserRead
 
@@ -95,6 +95,7 @@ async def get_user(
 async def get_user_by_id(
         user_id: str,
         session: AsyncSession = Depends(db_helper.session_getter),
+        _: str = Depends(verify_internal_api_key)
 ):
     service = UserService()
     user = await service.get_user_by_id(session=session, user_id=user_id)
