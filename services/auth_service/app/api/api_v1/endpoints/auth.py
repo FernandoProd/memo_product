@@ -40,7 +40,7 @@ from services.auth_service.app.models.redis_tokens import save_refresh_token
 from services.auth_service.app.core.config import settings
 
 def get_user_client() -> UserServiceClient:
-    return UserServiceClient()
+    return UserServiceClient(api_key=settings.internal_api_key)
 
 # Логин - получение токенов по login_data
 @router.post("/login", response_model=TokenResponse)
