@@ -20,6 +20,7 @@ from memo_libs.clients.exceptions import (
     UserServiceError,
 )
 from services.auth_service.app.models.redis_tokens import is_token_active
+from httpx import HTTPStatusError
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ from services.auth_service.app.models.redis_tokens import save_refresh_token
 from services.auth_service.app.core.config import settings
 
 def get_user_client() -> UserServiceClient:
+    logger.debug(f"Creating UserServiceClient with api_key: {settings.internal_api_key}")
     return UserServiceClient(api_key=settings.internal_api_key)
 
 # Логин - получение токенов по login_data
@@ -169,6 +171,8 @@ async def refresh_token(
     try:
         user_service_response = await http_client.get_user_by_id(user_id)
         user_data = user_service_response.json()
+    except HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
     except HTTPException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)
 
