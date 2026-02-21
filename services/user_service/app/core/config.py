@@ -27,6 +27,8 @@ class Settings(GeneralSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
 
+    # internal_api_key: str =
+
     model_config = {
         **GeneralSettings.model_config,
         "env_file": (
@@ -42,6 +44,7 @@ settings = Settings()
 logger.info("Успешно начали отладку!")
 print("PostrgeURL: ", settings.db.url)
 print("Echo: ", settings.db.echo)
+print("Internal API key:", settings.internal_api_key)
 # print("JWT secret key: ", settings.jwt.secret_key)
 
 #http://127.0.0.1:8000/docs
