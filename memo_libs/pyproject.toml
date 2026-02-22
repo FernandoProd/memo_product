@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 dependencies = []
 
 [tool.setuptools.packages.find]
-where = ["."] # смотрим в текущей директории
+where = ["."] # looking at current directory
 include = [
     "clients",
     "logging",
