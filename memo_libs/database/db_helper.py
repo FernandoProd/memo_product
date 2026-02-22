@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import (
 
 
 class DatabaseHelper:
+    """Helper class for managing database connections and sessions"""
+
     def __init__(
             self,
             url: str,
