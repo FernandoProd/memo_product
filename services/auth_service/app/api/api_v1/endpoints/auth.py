@@ -12,7 +12,7 @@ import logging
 from services.auth_service.app.schemas.schemas import TokenResponse, LoginRequest
 from services.auth_service.app.auth.helpers import create_access_token, create_refresh_token
 from services.auth_service.app.utils.jwt_utils import decode_jwt
-from services.auth_service.app.busines_logic.auth_server import AuthService
+from services.auth_service.app.business_logic.auth_server import AuthService
 from services.auth_service.app.models.db import db_helper
 from memo_libs.clients.exceptions import (
     InvalidCredentialsError,

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from services.user_service.app.busines_logic.user import UserService
+from services.user_service.app.business_logic.user import UserService
 from services.user_service.app.core.security.auth_utils import validate_password
 from services.user_service.app.dependencies.user_dependencies import get_current_user, verify_internal_api_key
 from services.user_service.app.models import db_helper
