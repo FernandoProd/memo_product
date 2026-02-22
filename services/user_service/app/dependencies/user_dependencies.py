@@ -11,7 +11,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 def get_auth_client() -> AuthServiceClient:
     logger.debug("Вызвался get_auth_client")
-    return AuthServiceClient()
+    return AuthServiceClient(base_url="http://localhost:8001")
 
 
 async def get_current_user(
