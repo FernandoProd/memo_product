@@ -37,7 +37,6 @@ class UserServiceClient(BaseClient):
 
         response = await self.post(
             "/api/v1/users/verify",
-            # заменил params на json
             json={
                 "email": email,
                 "password": password
