@@ -42,7 +42,7 @@ from services.auth_service.app.core.config import settings
 
 def get_user_client() -> UserServiceClient:
     logger.debug(f"Creating UserServiceClient with api_key: {settings.internal_api_key}")
-    return UserServiceClient(api_key=settings.internal_api_key)
+    return UserServiceClient(base_url="http://localhost:8000", api_key=settings.internal_api_key)
 
 # Логин - получение токенов по login_data
 @router.post("/login", response_model=TokenResponse)
