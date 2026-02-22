@@ -10,6 +10,7 @@ from services.user_service.app.core.security.auth_utils import validate_password
 from services.user_service.app.dependencies.user_dependencies import get_current_user, verify_internal_api_key
 from services.user_service.app.models import db_helper
 from services.user_service.app.schemas.user import UserCreate, UserRead
+from services.user_service.app.schemas.auth import UserCredentials
 
 
 logger = logging.getLogger(__name__)
@@ -46,16 +47,17 @@ class UserSchemaForAuth(BaseModel):
 # Эта шляпа нужна для того, чтобы дать auth_service payload для jwt, если пароль сходится (можно еще где-нибудь применять)
 @router.post("/verify")
 async def verify_user_pwd(
-        email: str,
-        password: str,
+        credentials: UserCredentials,
         session: AsyncSession = Depends(db_helper.session_getter),
 ) -> UserSchemaForAuth:
-    service = UserService()
-    check_user = await service.get_user_by_email(session=session, email=email)
-
+    user_service = UserService()
+    check_user = await user_service.get_user_by_email(
+        session=session,
+        email=credentials.email
+    )
 
     if not validate_password(
-            password=password,
+            password=credentials.password,
             hashed_password=check_user.hashed_password
     ):
         raise HTTPException(status_code=401 , detail="password is not valid")
