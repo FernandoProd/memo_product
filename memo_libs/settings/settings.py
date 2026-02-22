@@ -1,31 +1,14 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel, PostgresDsn, RedisDsn
-from pathlib import Path
-
-# USER_SERVICE_DIR = Path(__file__).parent.parent
-
-# class RunConfig(BaseModel):
-#     host: str = "0.0.0.0"
-#     port: int = 8000
-#
-#
-# class ApiV1Prefix(BaseModel):
-#     prefix: str = "/v1"
-#     users: str = "/users"
-
-
-# class ApiPrefix(BaseModel):
-#     prefix: str = "/api"
-#     v1: ApiV1Prefix = ApiV1Prefix()
+from pydantic import BaseModel, PostgresDsn, RedisDsn, Field
 
 
 class DatabaseConfig(BaseModel):
     """Database connection settings"""
     url: PostgresDsn
-    echo: bool = False
-    echo_pool: bool = False
-    pool_size: int = 50
-    max_overflow: int = 10
+    echo: bool = Field(False, description="Echo SQL queries to stdout")
+    echo_pool: bool = Field(False, description="Echo connection pool events")
+    pool_size: int = Field(50, description="Number of connections to maintain in pool")
+    max_overflow: int = Field(10, description="Maximum number of overflow connections")
 
     naming_convention: dict[str, str] = {
         "ix": "ix_%(column_0_label)s",
@@ -38,20 +21,16 @@ class DatabaseConfig(BaseModel):
 
 class RedisConfig(BaseModel):
     """Redis connection settings"""
-    url: RedisDsn = "redis://localhost:6379/0"
-    socket_timeout: int = 5
-    socket_connect_timeout: int = 5
+
+    # move the url in the future
+    url: RedisDsn = Field("redis://localhost:6379/0", description="Redis connection URL")
+    socket_timeout: int = Field(5, description="Socket timeout in seconds")
+    socket_connect_timeout: int = Field(5, description="Socket connect timeout in seconds")
 
 
-# Разобраться для чего выносить jwt конфиг в общий файл
 class JWTConfig(BaseModel):
     """JWT settings"""
     pass
-    # private_key_path: Path
-    # public_key_path: Path
-    # algorithm: str
-    # access_token_expire_minutes: int
-    # refresh_token_expire_days: int
 
 
 class GeneralSettings(BaseSettings):
@@ -65,26 +44,23 @@ class GeneralSettings(BaseSettings):
     redis: RedisConfig = RedisConfig()
     # jwt: JWTConfig = JWTConfig()
 
+    # CORS settings (move the urls to another place in the future)
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:8000"
+    ]
 
-    # CORS (can be overridden per service) (how can I use it?)
-    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
 
-
-    # General (how can I use it?)
-    debug: bool = False
-    environment: str = "development"
+    # General application settings
+    debug: bool = Field(False, description="Enable debug mode")
+    environment: str = Field("development", description="Application environment")
 
     # For X-Internal-API-key
-    internal_api_key: str = ""
+    internal_api_key: str = Field("", description="API key for internal services")
 
     model_config = SettingsConfigDict(
         case_sensitive=False,
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
-        # extra="ignore",     # Что это дает?
+        extra="ignore",
     )
-
-
-# settings = Settings()
-# print(settings.db.url)
-# print(settings.db.echo)
