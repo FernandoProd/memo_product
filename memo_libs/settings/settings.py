@@ -58,6 +58,10 @@ class GeneralSettings(BaseSettings):
     # For X-Internal-API-key
     internal_api_key: str = Field("", description="API key for internal services")
 
+    # Services URLs
+    user_service_url: str = Field("", description="URL for user service")
+    auth_service_url: str = Field("", description="URL for auth service")
+
     model_config = SettingsConfigDict(
         case_sensitive=False,
         env_nested_delimiter="__",
