@@ -1,26 +1,26 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import (
-    Response,
-    Request,
-    HTTPException,
-    APIRouter,
-    Depends,
-)
-from fastapi.security import HTTPBearer
-from typing import Annotated
 import logging
-from services.auth_service.app.schemas.schemas import TokenResponse, LoginRequest
-from services.auth_service.app.auth.helpers import create_access_token, create_refresh_token
-from services.auth_service.app.utils.jwt_utils import decode_jwt
-from services.auth_service.app.business_logic.auth_server import AuthService
-from services.auth_service.app.models.db import db_helper
+from typing import Annotated, Any
+
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.security import HTTPBearer
+from httpx import HTTPStatusError
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from memo_libs.clients.exceptions import (
     InvalidCredentialsError,
-    UserServiceUnavailableError,
     UserServiceError,
+    UserServiceUnavailableError,
 )
-from services.auth_service.app.models.redis_tokens import is_token_active
-from httpx import HTTPStatusError
+from memo_libs.clients.http_client.user_client import UserServiceClient
+
+from services.auth_service.app.auth.helpers import create_access_token, create_refresh_token
+from services.auth_service.app.business_logic.auth_server import AuthService
+from services.auth_service.app.core.config import settings
+from services.auth_service.app.models.db import db_helper
+from services.auth_service.app.models.redis_tokens import is_token_active, save_refresh_token
+from services.auth_service.app.schemas.schemas import LoginRequest, TokenResponse
+from services.auth_service.app.utils.jwt_utils import decode_jwt
+from services.auth_service.app.api.dependencies import get_redis_client, get_user_client
 
 
 logger = logging.getLogger(__name__)
@@ -28,65 +28,50 @@ logger = logging.getLogger(__name__)
 http_bearer = HTTPBearer(auto_error=False)
 router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(http_bearer)])
 
-# api/v1/endpoints/auth.py
-from pydantic import BaseModel
 
-class UserData(BaseModel):
-    username: str
-    password: str
-    email: str
-
-from memo_libs.clients.http_client.user_client import UserServiceClient
-from services.auth_service.app.models.redis_tokens import save_refresh_token
-from services.auth_service.app.core.config import settings
-
-def get_user_client() -> UserServiceClient:
-    logger.debug(f"Creating UserServiceClient with api_key: {settings.internal_api_key}")
-    return UserServiceClient(base_url="http://localhost:8000", api_key=settings.internal_api_key)
-
-# Логин - получение токенов по login_data
 @router.post("/login", response_model=TokenResponse)
 async def login(
         request: Request,
-        fastapi_response: Response, # for redis_client
+        fastapi_response: Response,
         login_data: LoginRequest,
-        session: Annotated[
-            AsyncSession,
-            Depends(db_helper.session_getter)
-        ],
-        http_client: UserServiceClient = Depends(get_user_client),
-):
-    # user = get_user_by_email(session, login_data.email)
-    # Если пользователя нет, то ошибка
-    # Сравниваем хешированный пароль login_data.password и user.hashed_password
-    # Создаем токены access и refresh
-    # Сохранить refresh_token в таблицу
-    # Вернуть TokenResponse
+        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+        http_client: Annotated[UserServiceClient, Depends(get_user_client)],
+) -> TokenResponse:
+    """
+    Authenticate user and return access/refresh tokens.
+
+    - Validates credentials with user service
+    - Creates JWT tokens
+    - Stores refresh token in Redis and database
+    - Sets refresh token as HTTP-only cookie
+    """
+
     try:
-        user_service_response = await http_client.verify_password(login_data.email, login_data.password)
+        # Verify credentials with user service
+        user_service_response = await http_client.verify_password(
+            login_data.email,
+            login_data.password
+        )
         user_data = user_service_response.json()
     except InvalidCredentialsError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     except UserServiceUnavailableError:
         raise HTTPException(status_code=503, detail="User service unavailable")
     except UserServiceError:
+        logger.exception("Unexpected error from user service")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    #user_data = user_service_response.json()
-    # Получаем Sub, username, email
-
-    # Создаем токены
-    access_token = create_access_token(
-        user=user_data
-    )
-    refresh_token = create_refresh_token(
-        user=user_data
-    )
-
+    # Fetching user information
     user_id = user_data["sub"]
+    # user_info = {}
 
-    # save refresh token into redis
-    redis_client = request.app.state.redis_client
+    # Creating tokens
+    access_token = create_access_token(user=user_data)
+    refresh_token = create_refresh_token(user=user_data)
+
+
+    # Store refresh token in Redis
+    redis_client = get_redis_client(request)
     await save_refresh_token(
         redis_client=redis_client,
         refresh_token=refresh_token,
@@ -94,96 +79,95 @@ async def login(
         ttl_days=settings.auth_jwt.refresh_token_expire_days
     )
 
-    # add refresh token into db
+    # Store refresh token in database
     service = AuthService()
     await service.add_token_info_into_db(
         session=session,
         refresh_token=refresh_token,
     )
-    # Надо ли хешировать refresh и access перед отправкой в БД и в куки?
-    # Сохраняем refresh_token в базу (если нужно)
-    # ... код сохранения refresh_token ...
 
-    # Помещаем refresh в кукисы
-
+    # Set refresh token as HTTP-only cookie
     fastapi_response.set_cookie(
-        key="refresh_token",  # name of cookie
-        value=refresh_token,  # value
+        key="refresh_token",
+        value=refresh_token,
         httponly=True,
-        secure=True,          # only https
-        samesite="strict",    # security of CSRF Есть еще и другие штуки
-        max_age=60 * 60 * 24 * 30  # срок жизни 30 дней
-        # domain=".myapp.com" в продакшине указать для каких доменов
+        secure=True,                # only https
+        samesite="strict",          # security of CSRF and there are a different other things
+        max_age=60 * 60 * 24 * 30
+        # domain=".memoproduct.com"       # set in the future
     )
 
     return TokenResponse(
         access_token=access_token,
-        # refresh_token=refresh_token,
         token_type="bearer"
     )
 
 
-# Обновление access токена
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
-        fastapi_request: Request,
-        # fastapi_response: Response,
-        session: Annotated[
-            AsyncSession,
-            Depends(db_helper.session_getter)
-        ],
-        http_client: UserServiceClient = Depends(get_user_client),
-):
-    refresh_token = fastapi_request.cookies.get("refresh_token")
+        request: Request,
+        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+        http_client: Annotated[UserServiceClient, Depends(get_user_client)],
+        redis_client: Annotated[Any, Depends(get_redis_client)],
+) -> TokenResponse:
+    """
+    Refresh access token using refresh token from cookie.
+    """
+
+    # Get refresh token from cookie
+    refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(401, "No refresh token")
 
     # Check: is refresh token active?
-    if await is_token_active(
-        redis_client=fastapi_request.app.state.redis_client,
+    token_valid = await is_token_active(
+        redis_client=redis_client,
         refresh_token=refresh_token,
-    ):
-        logger.info("Its great, there is token in redis")
-        # You should check token activity
-        # If the token is revoked get a new refresh token
-        # raise Exception("Check check")
+    )
 
-    else:
-        # Checking activity of refresh token into db
-        service = AuthService()
-        has_token = await service.refresh_token_into_db(
+    if not token_valid:
+        # Check database if not in Redis
+        auth_service = AuthService()
+        token_valid = await auth_service.refresh_token_into_db(
             session=session,
             refresh_token=refresh_token,
         )
-        if not has_token:
-            raise HTTPException(401, "Invalid or revoked refresh token")
-        logger.info("There isn't token in database: %s", refresh_token)
 
-    # 1. Проверка что тип токена "refresh"
-    # 1. Сравнение токена с БД
-    # 2. Обновление refresh token и загрузка его в куки
-    # Сравнение token_data.type != "refresh" - ошиббка  ВАЖНО СРАВНИТЬ С БД
-    # все ок - создаем токен новый
+    if not token_valid:
+        raise HTTPException(status_code=401, detail="Invalid or revoked refresh token")
 
-    payload = decode_jwt(refresh_token) # Стоит проверять срок действия
-    user_id = payload["sub"]
+    # Decode and validate token
+    try:
+        payload = decode_jwt(refresh_token)
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
 
+        user_id = payload["sub"]
+    except Exception as e:
+        logger.warning(f"Failed to decode refresh token: {e}")
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    # Get fresh user data
     try:
         user_service_response = await http_client.get_user_by_id(user_id)
         user_data = user_service_response.json()
     except HTTPStatusError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
-    except HTTPException as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail)
+        logger.error(f"User service error: {e}")
+        raise HTTPException(
+            status_code=e.response.status_code,
+            detail="User service error",
+        )
 
+    # Create new access token (and refresh in the future)
     user = {
         "sub": user_data["id"],
         "email": user_data["email"],
         "username": user_data["username"],
         "roles": [],
     }
+
     new_access_token = create_access_token(user)
-    # new_refresh_token = create_refresh_token() # Опционально , но тогда надо будет записать новый refresh в куки
+    # new_refresh_token = create_refresh_token()    # In the future
 
     return TokenResponse(
         access_token=new_access_token,
@@ -192,16 +176,25 @@ async def refresh_token(
 
 
 @router.post("/verify_token")
-async def verify_token(token_data: dict):
-    logger.debug("Info about token data: %s", token_data)
+async def verify_token(
+        token_data: dict
+) -> dict:
+    """
+    Verify JWT token and return user information.
+    Used internally by other services.
+    """
+
     token = token_data.get("token")
-    logger.debug("Token: %s", token)
-    payload = decode_jwt(token)
+    if not token:
+        raise HTTPException(status_code=400, detail="Token is required")
 
-    logger.debug("user_id: %s", payload.get("sub"))
-    logger.debug("email: %s", payload.get("email"))
+    try:
+        payload = decode_jwt(token)
+    except Exception as e:
+        logger.warning(f"Token verification failed: {e}")
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-    # Возврат пользователя можно реализовать в виде pydantic model
+    # Implement user's refund as pydantic model in the future
     return {
         "valid": True,
         "user_id": payload.get("sub"),
@@ -209,35 +202,35 @@ async def verify_token(token_data: dict):
     }
 
 
-# Выход (отзыв токена)
-@router.post("/logout", response_model=None)
+@router.post("/logout", status_code=200)
 async def logout(
-    session: Annotated[
-        AsyncSession,
-        Depends(db_helper.session_getter)
-    ],
-    request: Request,
-    response: Response,
+        request: Request,
+        response: Response,
+        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
+        redis_client: Annotated[Any, Depends(get_redis_client)],
 ):
+    """
+    Logout user by revoking refresh token.
+    """
+
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(status_code=400, detail="No refresh token in cookies")
 
-    redis_client = request.app.state.redis_client
-    # if the token exist (проверить есть ли он там вообще), если да, то удалить из redis
+    # Remove from Redis
     await redis_client.delete(f"rt:{refresh_token}")
 
-    # Проверить есть ли токен в БД, если да, то удалить
-    service = AuthService()
-    revoked_token = await service.revoke_refresh_token(
+    # Remove from database
+    auth_service = AuthService()
+    revoked_token = await auth_service.revoke_refresh_token(
         session=session,
         refresh_token=refresh_token,
     )
 
     if not revoked_token:
-        raise HTTPException(status_code=400, detail="Refresh token still expired")
-    logger.info("Refresh token was revoked successfully: %s", revoked_token)
+        logger.warning(f"Attempt to revoke non-existent token: {refresh_token}")
 
+    # Clear cookie
     response.delete_cookie(
         key="refresh_token",
         path="/",
@@ -246,84 +239,6 @@ async def logout(
         samesite="strict"
     )
 
-
     return {"message": "Logged out successfully"}
 
 
-# По сюда комментировал
-
-#
-#
-# Получение данных авторизованного пользователя
-# @router.get("/users/me/", dependencies=[Depends(oauth2_scheme)])
-# def auth_user_check_self_info(
-#         payload: dict = Depends(get_current_token_payload),
-#        # user: UserSchema = Depends(get_current_active_auth_user), # Этот метод для того, чтобы можно было проверять пользователя по token и public_key
-# ):
-#     iat = payload.get("iat") # когда выпущен
-#     jti = payload.get("jti") # идентификационный номер токена
-#
-#     # return {
-#     #     "username": user.username,
-#     #     "email": user.email,
-#     #     "logged_in_at": iat,
-#     #     "jti": jti,
-#     # }
-#     pass
-    # token = credentials.credentials
-    # payload = Проверка токена (token)
-    # Если payload.type != "access" - ошибка
-    # Если payload.sub нет, то не найден пользователь
-    # Вернуть UserInfo или UserData
-    # нужен эндпоинт для получения текущей сессии (то есть получения данных текущего пользователя)
-#
-#
-# # Выход (отзыв токена)
-# @router.post("/logout")
-# async def logout(
-#         session: AsyncSession,
-#         logout_request: LogoutRequest,
-# ):
-#     # Если использую БД для refresh токенов
-#     # await revoke_refresh_token(session, logout_request.refresh_token)
-#
-#     # Для stateless JWT - клиент просто удаляет токены
-#     # Инвалидируем сессию
-#     pass
-#
-
-#
-# # @router
-# async def change_password(
-#         old_password: str,
-#         new_password: str,
-#         credentials: OAuth2PasswordRequestForm = Depends(),
-#         session: AsyncSession = Depends(),
-# ):
-#     pass
-#
-# # @router
-# def update_user():
-#     pass
-#     # обновления логина и пароля
-#
-# # dependency
-# # async get current user
-#
-#
-# #Для проверки ролей, но можно придумать и другие роли
-# # async get_current)admin_user
-#
-#
-#
-# # 7. Использование в других сервисах:
-# # python
-# # # В user_service или других сервисах
-# # from fastapi import Depends
-# # from auth_service.core.dependencies import get_current_user
-# #
-# # @router.get("/protected")
-# # async def protected_route(
-# #     current_user: User = Depends(get_current_user)
-# # ):
-# #     return {"message": f"Hello {current_user.username}"}
