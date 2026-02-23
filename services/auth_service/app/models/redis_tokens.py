@@ -81,24 +81,3 @@ async def revoke_token(
 
 
 
-async def test_redis_saving():
-    redis_client = redis.from_url(settings.redis.url, decode_responses=True) # decode_responses нужен для возвращение строк, а не байтов
-
-    await save_refresh_token(
-        redis_client=redis_client,
-        refresh_token = "refresh-token-for-test",
-        user_id="some_hash",
-        ttl_days=7
-    )
-
-    result = await redis_client.get(f"rt:refresh-token-for-test")
-    await redis_client.aclose() # Может async with лучше использовать?
-    return result
-
-print(asyncio.run(test_redis_saving()))
-
-# Для запуска из корня всего проекта
-# PYTHONPATH=. python services/auth_service/app/models/redis_tokens.py   на Linux
-# $env:PYTHONPATH="."; python services/auth_service/app/models/redis_tokens.py     На windows
-
-
