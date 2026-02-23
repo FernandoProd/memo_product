@@ -1,15 +1,19 @@
-import logging
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from memo_libs.settings import GeneralSettings
+import logging
+
 
 logger = logging.getLogger(__name__)
 
-USER_SERVICE_DIR = Path(__file__).parent.parent.parent # Корень user_service
+
+USER_SERVICE_DIR = Path(__file__).parent.parent.parent          # services/user_service
+
 
 class RunConfig(BaseModel):
-    host: str = "0.0.0.0"
-    port: int = 8000
+    """Development server settings"""
+    host: str = Field("0.0.0.0", description="Bind host")
+    port: int = Field(8000, description="Bind port")
 
 
 class ApiV1Prefix(BaseModel):
