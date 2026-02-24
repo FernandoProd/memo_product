@@ -3,12 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.user_service.app.core.security.auth_utils import hash_password
 from services.user_service.app.crud import users
-from services.user_service.app.models import User
-from services.user_service.app.schemas.user import UserCreate
-from services.user_service.app.schemas.user import UserCreateInternal
+from services.user_service.app.schemas.user import (
+    UserCreate,
+    UserCreateInternal,
+    UserRead
+)
 
 class UserService:
-    async def create_user_with_hash(self, session: AsyncSession, user_data: UserCreate) -> User:
+    async def create_user_with_hash(self, session: AsyncSession, user_data: UserCreate) -> UserRead:
         hashed_pwd = hash_password(user_data.password)
         user_dict = UserCreateInternal(
             username = user_data.username,
@@ -22,7 +24,7 @@ class UserService:
         return user
 
 
-    async def get_user_by_id(self, session: AsyncSession, user_id: str) -> User:
+    async def get_user_by_id(self, session: AsyncSession, user_id: str) -> UserRead:
         user = await users.get_user_by_id(
             session=session,
             user_id=user_id,
@@ -38,7 +40,7 @@ class UserService:
             self,
             session: AsyncSession,
             email: str
-    ) -> User:
+    ) -> UserRead:
         user = await users.get_user_by_email(
             session=session,
             email=email,
@@ -49,41 +51,6 @@ class UserService:
 
         return user
 
-
-#     def get_auth_client(self) -> AuthServiceClient:
-#         return AuthServiceClient()
-#
-#
-#     async def get_current_user(
-#             self,
-#             authorization: Optional[str] = Header(None),
-#             http_client: AuthServiceClient = Depends(get_auth_client)
-# ) -> dict:
-#         if not authorization.startswith("Bearer "):
-#             raise HTTPException(status_code=401, detail="Invalid authorization header")
-#
-#         if not authorization or not authorization.startswith("Bearer "):
-#             raise HTTPException(
-#                 status_code=401,
-#                 detail="Missing or invalid Authorization header"
-#             )
-#
-#         token = authorization.split("Bearer ")[1]
-#
-#         try:
-#             response = await http_client.get_current_user(token)
-#
-#             if response.status_code != 200:
-#                 raise HTTPException(
-#                     status_code=response.status_code,
-#                     detail="Invalid token"
-#                 )
-#
-#             auth_data = response.json()
-#             return auth_data  # {"user_id": "...", "email": "...", ...}
-#
-#         except Exception as e:
-#             raise HTTPException(status_code=500, detail=str(e))
 
 
 
