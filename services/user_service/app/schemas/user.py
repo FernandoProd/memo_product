@@ -12,7 +12,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
-# Для внутреннего использования
+
 class UserCreateInternal(BaseModel):
     username: str
     email: str
@@ -38,4 +38,11 @@ class UserRead(UserBase):
     display_name: Optional[str] = None
     avatar_url: Optional[str] = None
     deleted_at: Optional[datetime] = None
+
+
+class UserSchemaForAuth(BaseModel):
+    sub: str
+    email: EmailStr
+    username: str
+    roles: list= []
 
