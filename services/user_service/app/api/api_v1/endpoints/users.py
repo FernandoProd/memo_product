@@ -2,71 +2,83 @@ import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.user_service.app.business_logic.user import UserService
 from services.user_service.app.core.security.auth_utils import validate_password
 from services.user_service.app.dependencies.user_dependencies import get_current_user, verify_internal_api_key
 from services.user_service.app.models import db_helper
-from services.user_service.app.schemas.user import UserCreate, UserRead
+from services.user_service.app.schemas.user import (
+    UserCreate,
+    UserRead,
+    UserSchemaForAuth
+)
 from services.user_service.app.schemas.auth import UserCredentials
 
 
 logger = logging.getLogger(__name__)
+
 router = APIRouter(tags=["Users"])
 
 @router.post("/", response_model=UserRead)
 async def create_user(
-        session: Annotated[
-            AsyncSession,
-            Depends(db_helper.session_getter)
-        ],
         user_data: UserCreate,
+        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ):
-    logger.info("Вызов эндпоинта для создания пользователя")
+    """
+    Create a new user.
+
+    - Hashes the password and stores user in database.
+    - Returns created user data (without password).
+    """
+
+    logger.info("Creating new user with email: %s", user_data.email)
     service = UserService()
     user = await service.create_user_with_hash(
         session=session,
         user_data=user_data,
     )
-    logger.debug("DEBUG: возвращаем значение user - %s",user)
+    logger.debug("DEBUG: returning user with data: %s",user)
+
     return user
 
 
-from pydantic import BaseModel, EmailStr
-
-class UserSchemaForAuth(BaseModel):
-    sub: str
-    email: EmailStr
-    username: str
-    roles: list= [] # Можно хранить dict = {"role_auth_user": True, "role_vip_user": False, "role_admin": False} - возможно стоит делать схему этого словаря
-
-
-
-# Эта шляпа нужна для того, чтобы дать auth_service payload для jwt, если пароль сходится (можно еще где-нибудь применять)
 @router.post("/verify")
 async def verify_user_pwd(
         credentials: UserCredentials,
-        session: AsyncSession = Depends(db_helper.session_getter),
+        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ) -> UserSchemaForAuth:
+    """
+    Verify user credentials.
+
+    Used internally by auth service to validate login and return user data for JWT payload.
+    Returns user info (sub, email, username, roles) if credentials are valid.
+    """
+
     user_service = UserService()
-    check_user = await user_service.get_user_by_email(
+    user = await user_service.get_user_by_email(
         session=session,
         email=credentials.email
     )
 
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
     if not validate_password(
             password=credentials.password,
-            hashed_password=check_user.hashed_password
+            hashed_password=user.hashed_password
     ):
-        raise HTTPException(status_code=401 , detail="password is not valid")
+        raise HTTPException(status_code=401 , detail="Invalid password")
 
     user_for_auth = UserSchemaForAuth(
-        sub=str(check_user.id),
-        email=check_user.email,
-        username=check_user.username,
-        roles=[]       # check_user.roles,  # Пока что нигде не добавлены((
+        sub=str(user.id),
+        email=user.email,
+        username=user.username,
+        roles=[]
     )
 
     return user_for_auth
@@ -74,50 +86,50 @@ async def verify_user_pwd(
 
 @router.get("/me")
 async def get_user(
-        session: AsyncSession = Depends(db_helper.session_getter),
-        auth_data: dict = Depends(get_current_user),
+        auth_data: Annotated[dict, Depends(get_current_user)],
+        session: Annotated[AsyncSession, Depends(db_helper.session_getter)],
 ) -> UserRead:
-    logger.debug("Сообщение для отладки")
-    logger.debug("Сообщение для отладки")
-    logger.debug("Сообщение для отладки")
-    logger.debug("Сообщение для отладки")
-    # Изначально был user_id
+    """
+    Get information about the currently authenticated user.
+    """
+
     user_id = auth_data.get("user_id")
-    print(f"DEBUG: user_id = {user_id}")
-    logger.debug(f"Troubles with something shit: {user_id}")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication data",
+        )
+
+    logger.debug("Fetching user by ID: %s", user_id)
+
     service = UserService()
-    user_data = await service.get_user_by_id(session=session, user_id=user_id)
-    return user_data
+    user = await service.get_user_by_id(session=session, user_id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return user
 
 
-
-# Ручка для получения всей инфы для create access по user_id
-# Учесть, что тут не защищена ручка, то есть каждый сможет получить без авторизации информацию
 @router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(
         user_id: str,
         session: AsyncSession = Depends(db_helper.session_getter),
         _: str = Depends(verify_internal_api_key)
 ):
+    """
+    Get user by ID (internal endpoint, protected by API key).
+    """
     service = UserService()
     user = await service.get_user_by_id(session=session, user_id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
     return user
 
 
-# @router.get("/me")
-# async def get_user(
-#         session: AsyncSession = Depends(db_helper.session_getter),
-#         auth_data: dict = Depends(get_current_user),
-# ) -> UserRead:
-#     logger.debug("Сообщение для отладки")
-#     logger.debug("Сообщение для отладки")
-#     logger.debug("Сообщение для отладки")
-#     logger.debug("Сообщение для отладки")
-#     # Изначально был user_id
-#     user_id = auth_data.get("id")
-#     print(f"DEBUG: user_id = {user_id}")
-#     logger.debug(f"Troubles with something shit: {user_id}")
-#     service = UserService()
-#     user_data = await service.get_user_by_id(session=session, user_id=user_id)
-#     return user_data
 
