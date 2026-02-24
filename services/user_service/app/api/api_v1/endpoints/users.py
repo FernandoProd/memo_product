@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.user_service.app.business_logic.user import UserService
@@ -32,14 +33,16 @@ async def create_user(
     - Hashes the password and stores user in database.
     - Returns created user data (without password).
     """
-
-    logger.info("Creating new user with email: %s", user_data.email)
-    service = UserService()
-    user = await service.create_user_with_hash(
-        session=session,
-        user_data=user_data,
-    )
-    logger.debug("DEBUG: returning user with data: %s",user)
+    try:
+        logger.info("Creating new user with email: %s", user_data.email)
+        service = UserService()
+        user = await service.create_user_with_hash(
+            session=session,
+            user_data=user_data,
+        )
+        logger.debug("DEBUG: returning user with data: %s",user)
+    except IntegrityError:
+        raise HTTPException(status_code=409, detail="User with this email already exists")
 
     return user
 
