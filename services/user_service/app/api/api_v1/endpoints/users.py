@@ -3,9 +3,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException, status
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from services.user_service.app.business_logic.exceptions import DuplicateEmailError
 from services.user_service.app.business_logic.user import UserService
 from services.user_service.app.core.security.auth_utils import validate_password
 from services.user_service.app.dependencies.user_dependencies import get_current_user, verify_internal_api_key
@@ -41,7 +41,7 @@ async def create_user(
             user_data=user_data,
         )
         logger.debug("DEBUG: returning user with data: %s",user)
-    except IntegrityError:
+    except DuplicateEmailError:
         raise HTTPException(status_code=409, detail="User with this email already exists")
 
     return user
