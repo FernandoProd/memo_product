@@ -1,10 +1,10 @@
-from typing import Optional  # ОПять забыл нахрена тут Optional
+from typing import Optional
 from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.user_service.app.models import User
-from services.user_service.app.schemas.user import UserCreateInternal
+from services.user_service.app.schemas.user import UserCreateInternal, UserRead
 
 
 
@@ -29,7 +29,7 @@ async def create_user(
 async def get_user_by_id(
         session: AsyncSession,
         user_id: str,
-) -> Optional[User]:
+) -> Optional[UserRead]:
     try:
 
         #user_uuid = uuid.UUID(user_id)
@@ -39,18 +39,18 @@ async def get_user_by_id(
         return result.scalar_one_or_none()
 
     except (ValueError, Exception) as e:
-        print(f"Ошибка: {e}")
+        print(f"Error: {e}")
         return None
 
 
 async def get_user_by_email(
         session: AsyncSession,
         email: str,
-) -> Optional[User]:
+) -> Optional[UserRead]:
     try:
         stmt = select(User).where(User.email == email)
         result = await session.execute(stmt)
         return result.scalar_one_or_none()
     except (ValueError, Exception) as e:
-        print(f"ОшибкаЖ: {e}")
+        print(f"Error: {e}")
         return None
