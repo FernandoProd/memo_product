@@ -2,6 +2,7 @@ import logging
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from services.user_service.app.business_logic.exceptions import DuplicateEmailError
 from services.user_service.app.core.security.auth_utils import hash_password
 from services.user_service.app.crud import users as crud_users
 from services.user_service.app.schemas.user import (
@@ -28,7 +29,7 @@ class UserService:
         if existing:
             logger.warning("Attempt to create user with existing email: %s", user_data.email)
 
-            raise IntegrityError("User with this email already exists")
+            raise DuplicateEmailError("User with this email already exists")
 
         hashed_pwd = hash_password(user_data.password)
         user_dict = UserCreateInternal(
