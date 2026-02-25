@@ -42,7 +42,7 @@ async def revoke_token(
             RefreshToken.revoked == False
         )
         .values(revoked=True)
-        .execution_options(synchronize_session="fetch")  # для синхронизации сессии
+        .execution_options(synchronize_session="fetch")
     )
 
     result = await session.execute(stmt)
