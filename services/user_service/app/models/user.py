@@ -11,23 +11,23 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),  # Используем PostgreSQL UUID тип
+        PG_UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,  # Автогенерация UUID
+        default=uuid.uuid4,
         index=True,
         unique=True
     )
 
     """login identifiers"""
     username: Mapped[str] = mapped_column(
-        String(50),  # Ограничение длины
+        String(50),
         unique=True,
         index=True,
         nullable=False
     )
 
     email: Mapped[str] = mapped_column(
-        String(255),  # Стандартная длина для email
+        String(255),
         unique=True,
         index=True,
         nullable=False
@@ -57,7 +57,7 @@ class User(Base):
 
     """image maybe"""
     avatar_url: Mapped[Optional[str]] = mapped_column(
-        String(500),  # URL может быть длинным
+        String(500),
         nullable=True
     )
 
@@ -68,7 +68,7 @@ class User(Base):
     )
 
     is_deleted: Mapped[bool] = mapped_column(
-        default=False,  # Soft delete флаг
+        default=False,
         nullable=False
     )
 
@@ -77,49 +77,14 @@ class User(Base):
     )
 
     created_at: Mapped[datetime] = mapped_column(
-        default=datetime.utcnow,  # Используем UTC время
+        default=datetime.utcnow,
         nullable=False
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow,
-        onupdate=datetime.utcnow,  # Автообновление при изменении
+        onupdate=datetime.utcnow,
         nullable=False
     )
 
 
-
-
-
-
-
-
-
-
-
-
-
-# # API Gateway получает запрос регистрации
-# POST /auth/register
-#
-# # API Gateway вызывает:
-# # 1. Сначала User Service
-# POST /internal/users
-# {
-#     "username": "john_doe",
-#     "email": "john@example.com",
-#     "first_name": "John",
-#     "last_name": "Doe"
-# }
-# # Возвращает user_id
-#
-# # 2. Затем Auth Service
-# POST /internal/auth/credentials
-# {
-#     "user_id": "полученный_user_id",
-#     "username": "john_doe",
-#     "email": "john@example.com",
-#     "password": "secure123"
-# }
-#
-# # 3. Возвращает клиенту токен
