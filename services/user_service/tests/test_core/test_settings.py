@@ -1,16 +1,16 @@
 import asyncio
 
-from app.core.config import settings
+from services.user_service.app.core.config import settings
 
 
 async def test_db_config():
     print("DB Configuration:")
     print(f"URL: {settings.db.url}")
 
-    # Попробуйте подключиться
+    # Try to connect
     import asyncpg
     try:
-        # Извлеките параметры из URL
+        # Retrieve params from URL
         url = settings.db.url
         # postgresql+asyncpg://user:pass@host:port/dbname
         parts = url.split('://')[1].split('@')
@@ -24,10 +24,10 @@ async def test_db_config():
             port=int(host_port_db[0].split(':')[1]) if ':' in host_port_db[0] else 5432,
             database=host_port_db[1]
         )
-        print("✅ Подключение успешно!")
+        print("Connection was successful!")
         await conn.close()
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
+        print(f"Error: {e}")
 
 
 asyncio.run(test_db_config())

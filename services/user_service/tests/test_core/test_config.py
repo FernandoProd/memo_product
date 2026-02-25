@@ -1,9 +1,8 @@
-# Импортируем настройки
-from app.core.config import Settings
+from services.user_service.app.core.config import Settings
 
 
 def test_settings_can_be_created_with_env_file():
-    """Проверяем, что настройки загружаются из .env файла"""
+    """Checking settings loading from .env file"""
     settings = Settings(_env_file="services/user_service/.env.template")
 
     assert settings.db.echo == True
