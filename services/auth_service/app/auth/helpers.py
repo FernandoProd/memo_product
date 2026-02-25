@@ -1,6 +1,7 @@
-from services.auth_service.app.core.config import settings
-from services.auth_service.app.utils import jwt_utils
 from datetime import timedelta
+
+from services.auth_service.app.core.config import settings
+from services.auth_service.app.utils.jwt_utils import encode_jwt
 
 
 TOKEN_TYPE_FIELD = "type"
@@ -13,21 +14,25 @@ def create_jwt(
         expire_minutes: int = settings.auth_jwt.access_token_expire_minutes,
         expire_timedelta: timedelta | None = None,
 ) -> str:
-    jwt_payload = {
-        TOKEN_TYPE_FIELD: token_type
-    }
-    jwt_payload.update(token_data)
+    """
+    Create a JWT token with the given type and payload
+    """
 
-    return jwt_utils.encode_jwt(
+    jwt_payload = {TOKEN_TYPE_FIELD: token_type, **token_data}
+
+    return encode_jwt(
         payload=jwt_payload,
         expire_minutes=expire_minutes,
         expire_timedelta=expire_timedelta,
     )
-    pass
 
 def create_access_token(
         user: dict# UserSchema # По факту вызывается Endpoint verify из user_service
 ) -> str:
+    """
+    Create an access token for a user
+    """
+
     jwt_payload = {
         "sub": user["sub"],
         "email": user["email"],
@@ -43,6 +48,10 @@ def create_access_token(
 
 
 def create_refresh_token(user: dict) -> str:
+    """
+     Create a refresh token for a user.
+    """
+
     jwt_payload = {
         "sub": user["sub"],
     }
