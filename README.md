@@ -6,7 +6,7 @@
 [![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://postgresql.org)
 ____
-**Meme Product** is an educational microservice project built with FastAPI, demonstrating authentication and user management using JWT (RS256), PostgreSQL, Redis, and an Nginx API Gateway. The project is organized as a monorepo with a shared `memo_libs` library for code reuse across services.
+## **Meme Product** is an educational microservice project built with FastAPI, demonstrating authentication and user management using JWT (RS256), PostgreSQL, Redis, and an Nginx API Gateway. The project is organized as a monorepo with a shared `memo_libs` library for code reuse across services.
 ---
 ## 📐 Architecture
 ![memo_architecture.jpg](memo_architecture.jpg)
