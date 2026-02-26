@@ -100,7 +100,7 @@ ___
     cp services/auth_service/.env.template services/auth_service/.env
     cp services/user_service/.env.template services/user_service/.env
    ```
-Edit variables if needed (passwords, keys, etc.).
+   Edit variables if needed (passwords, keys, etc.).
 
 3. Generate an RSA key pair for JWT (if not already present):
     ```bash
