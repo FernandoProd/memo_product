@@ -1,0 +1,117 @@
+version: '3.8'
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  user-db:
+    image: postgres:15
+    container_name: user-db
+    environment:
+      POSTGRES_DB: user
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_DB: auth_user
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build:
+      context: ./
+      dockerfile: services/user_service/Dockerfile
+    container_name: user-service
+    environment:
+      APP_CONFIG__DB__URL: postgresql+asyncpg://user:password@user-db:5432/user
+      APP_CONFIG__AUTH_SERVICE_URL: http://auth-service:8001
+      APP_CONFIG__RUN__HOST: 0.0.0.0
+      APP_CONFIG__RUN__PORT: 8000
+      APP_CONFIG__INTERNAL_API_KEY: my-super-secret-key
+      APP_CONFIG__CORS_ORIGINS: '["http://localhost","http://localhost:3000"]'
+    ports:
+      - "8000:8000"
+    depends_on:
+      user-db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  auth-service:
+    build:
+      context: ./
+      dockerfile: services/auth_service/Dockerfile
+    container_name: auth-service
+    environment:
+      APP_CONFIG__DB__URL: postgresql+asyncpg://auth_user:password@auth-db:5432/auth_user
+      APP_CONFIG__REDIS__URL: redis://redis:6379/0
+      APP_CONFIG__USER_SERVICE_URL: http://user-service:8000
+      APP_CONFIG__RUN__HOST: 0.0.0.0
+      APP_CONFIG__RUN__PORT: 8001
+      APP_CONFIG__INTERNAL_API_KEY: my-super-secret-key
+      APP_CONFIG__CORS_ORIGINS: '["http://localhost","http://localhost:3000"]'
+    ports:
+      - "8001:8001"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - user-service
+      - auth-service
+    networks:
+      - app-network
+
+volumes:
+  user-db-data:
+  auth-db-data:
