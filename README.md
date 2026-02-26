@@ -93,20 +93,25 @@ ___
    ```bash
    git clone https://github.com/FernandoProd/memo_product.git
    cd memo_product
+   ```
    
 2. Create .env files for each service from the templates:
     ```bash
     cp services/auth_service/.env.template services/auth_service/.env
     cp services/user_service/.env.template services/user_service/.env
+   ```
 Edit variables if needed (passwords, keys, etc.).
+
 3. Generate an RSA key pair for JWT (if not already present):
     ```bash
     mkdir -p services/auth_service/certs
     openssl genrsa -out services/auth_service/certs/jwt-private.pem 2048
     openssl rsa -in services/auth_service/certs/jwt-private.pem -pubout -out services/auth_service/certs/jwt-public.pem
+   ```
 4. Start all services:
     ```bash
     docker-compose up --build
+   ```
 5. Verify everything is working:
 
 - User Service Swagger: http://localhost/api/v1/users/docs
@@ -118,6 +123,7 @@ Edit variables if needed (passwords, keys, etc.).
     ```bash
     pip install poetry
     poetry install
+   ```
 2. Set up PostgreSQL databases and Redis
 - Create two databases: `user` and `auth_user` (or use Docker containers only for the databases).
 - Run Redis locally.
@@ -127,13 +133,13 @@ Copy `.env.template` to `.env` for each service and update the URLs (e.g., use `
 
 4. Apply migrations
 For each service, run:
-
     ```bash
     cd services/user_service
     alembic upgrade head
 
     cd ../auth_service
     alembic upgrade head
+   ```
 5. Start the services (in separate terminals)
     ```bash
     # Terminal 1
@@ -143,6 +149,7 @@ For each service, run:
     # Terminal 2
     cd services/auth_service
     uvicorn app.main:app --reload --port 8001
+   ```
 6. (Optional) Run Nginx locally
 If you want to use the API Gateway, configure nginx with the config from `nginx/nginx.conf` and set the upstreams to `localhost:8000` and `localhost:8001`.
 
