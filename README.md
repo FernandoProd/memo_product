@@ -1,4 +1,4 @@
-# Meme Product — Microservice Authentication and User Management
+# Memo Product — Microservice Authentication and User Management
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.0-green.svg)](https://fastapi.tiangolo.com)
 [![Poetry](https://img.shields.io/badge/poetry-1.8.0-blueviolet)](https://python-poetry.org)
@@ -6,7 +6,7 @@
 [![Redis](https://img.shields.io/badge/Redis-7-red.svg)](https://redis.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://postgresql.org)
 ____
-## **Meme Product** is an educational microservice project built with FastAPI, demonstrating authentication and user management using JWT (RS256), PostgreSQL, Redis, and an Nginx API Gateway. The project is organized as a monorepo with a shared `memo_libs` library for code reuse across services.
+## **Memo Product** is an educational microservice project built with FastAPI, demonstrating authentication and user management using JWT (RS256), PostgreSQL, Redis, and an Nginx API Gateway. The project is organized as a monorepo with a shared `memo_libs` library for code reuse across services.
 ---
 ## 📐 Architecture
 ![memo_architecture.jpg](memo_architecture.jpg)
@@ -25,14 +25,21 @@ ___
 ## 🛠 Tech Stack
 
 - **Python 3.12**
-- **FastAPI** — web framework
-- **PostgreSQL 15** + **asyncpg** + **SQLAlchemy 1.4** (asyncio) + **Alembic**
-- **Redis 7** + **redis-py** (asyncio)
-- **JWT (RS256)** — asymmetric token encryption
+- **FastAPI 0.128.0** — web framework
+- **Uvicorn 0.40.0** — ASGI server
+- **Pydantic 2.12.5** + **Pydantic Settings 2.12.0** — data validation and settings management
+- **PostgreSQL 15** + **asyncpg 0.31.0** — database and async driver
+- **SQLAlchemy 2.0.46** (asyncio support) — ORM
+- **Alembic 1.18.1** — database migrations
+- **Redis 7** + **redis-py 7.1.0** — in-memory store
+- **JWT (RS256)** — asymmetric token encryption (via `pyjwt[crypto] 2.10.1` and `python-jose[cryptography] 3.5.0`)
+- **Passlib 1.7.4** (bcrypt) — password hashing
+- **HTTPX 0.28.1** — async HTTP client for internal service calls
 - **Nginx** — API Gateway
 - **Docker** + **Docker Compose** — containerization and orchestration
 - **Poetry** — dependency management
-- **Pytest** — testing
+- **Pytest 9.0.2** + **pytest-asyncio 1.3.0** — testing
+- **Black 26.1.0** — code formatting
 - **Logging** — unified logging configuration via `memo_libs`
 
 ---
@@ -95,7 +102,7 @@ ___
    cd memo_product
    ```
    
-2. Create .env files for each service from the templates:
+2. Create `.env` files for each service from the templates:
     ```bash
     cp services/auth_service/.env.template services/auth_service/.env
     cp services/user_service/.env.template services/user_service/.env
@@ -190,4 +197,4 @@ Each service has its own tests written with `pytest`. To run them:
 📄 License
 ## This project is licensed under the MIT License. See the LICENSE file for details.
 
-## Enjoy using Meme Product! 🚀
+## Enjoy using Memo Product! 🚀
