@@ -26,7 +26,7 @@ from services.auth_service.app.api.dependencies import get_redis_client, get_use
 logger = logging.getLogger(__name__)
 
 http_bearer = HTTPBearer(auto_error=False)
-router = APIRouter(prefix="/auth", tags=["Authentication"], dependencies=[Depends(http_bearer)])
+router = APIRouter(tags=["Authentication"], dependencies=[Depends(http_bearer)])    # Remove prefix="/auth"
 
 
 @router.post("/login", response_model=TokenResponse)
