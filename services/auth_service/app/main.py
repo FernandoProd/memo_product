@@ -44,7 +44,8 @@ def create_app() -> FastAPI:
         swagger_ui_parameters={
             "persistAuthorization": True,
             "withCredentials": True,
-        }
+        },
+        root_path = "/api/v1/auth"
     )
 
     # Configure CORS
