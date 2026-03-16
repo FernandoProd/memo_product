@@ -116,7 +116,7 @@ async def get_user(
 
 
 @router.get("/{user_id}", response_model=UserRead)
-async def get_user_by_id(
+async def get_current_user_by_id(
         user_id: str,
         session: AsyncSession = Depends(db_helper.session_getter),
         _: str = Depends(verify_internal_api_key)
@@ -133,6 +133,34 @@ async def get_user_by_id(
         )
 
     return user
+
+
+from services.user_service.app.crud.users import update_user_data
+
+@router.patch("/update", response_model=UserRead)
+async def update_current_user_data(
+        user_id: str,
+        first_name: str,
+        last_name: str,
+        session: AsyncSession = Depends(db_helper.session_getter),
+):
+    """
+    Update user data (first_name, last_name)
+    """
+
+    changed_user = await update_user_data(
+        session=session,
+        user_id=user_id,
+        first_name=first_name,
+        last_name=last_name,
+    )
+
+    return changed_user
+
+
+
+
+
 
 
 
