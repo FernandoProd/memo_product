@@ -109,3 +109,27 @@ async def update_user_data(
         await session.rollback()
         logger.error("Unexpected error updating user %s: %s", user_id, e)
         raise
+
+
+async def delete_user_by_id(
+        session: AsyncSession,
+        user_id: str,
+) -> bool:
+    """
+    Delete user by user_id
+    return Bool
+    """
+
+    user = await session.get(User, user_id)
+    if not user:
+        return False
+
+    try:
+        await session.delete(user)
+        await session.commit()
+        return True
+    except Exception as e:
+        await session.rollback()
+        raise e
+
+
