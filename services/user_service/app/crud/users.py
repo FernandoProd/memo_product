@@ -81,7 +81,7 @@ async def get_user_by_email(
 
 async def update_user_data(
         session: AsyncSession,
-        current_user_id: str, # will be put in by auto with maybe Dependency
+        user_id: str, # will be put in by auto with maybe Dependency
         first_name: str,
         last_name: str,
 ) -> User | None:
@@ -90,7 +90,7 @@ async def update_user_data(
     return None if not found
     """
 
-    user = await session.get(User, current_user_id)
+    user = await session.get(User, user_id)
     if not user:
         return None
 
@@ -103,9 +103,9 @@ async def update_user_data(
         return user
     except IntegrityError as e:
         await session.rollback()
-        logger.error("Integrity error updating user %s: %s", current_user_id, e)
+        logger.error("Integrity error updating user %s: %s", user_id, e)
         raise
     except Exception as e:
         await session.rollback()
-        logger.error("Unexpected error updating user %s: %s", current_user_id, e)
+        logger.error("Unexpected error updating user %s: %s", user_id, e)
         raise
