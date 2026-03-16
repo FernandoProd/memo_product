@@ -135,7 +135,7 @@ async def get_current_user_by_id(
     return user
 
 
-from services.user_service.app.crud.users import update_user_data
+from services.user_service.app.crud.users import update_user_data, delete_user_by_id
 
 @router.patch("/update", response_model=UserRead)
 async def update_current_user_data(
@@ -156,6 +156,26 @@ async def update_current_user_data(
     )
 
     return changed_user
+
+
+@router.delete("/delete")
+async def delete_user_from_db(
+        user_id: str,
+        session: AsyncSession = Depends(db_helper.session_getter),
+) -> bool:
+    """
+    Delete user from database by user_id
+    return Bool
+    """
+
+    delete_user = await delete_user_by_id(
+        session=session,
+        user_id=user_id,
+    )
+
+    return delete_user
+
+
 
 
 
